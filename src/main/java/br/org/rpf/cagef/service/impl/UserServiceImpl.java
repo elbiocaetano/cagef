@@ -86,6 +86,8 @@ public class UserServiceImpl implements UserService {
 
 	private ExampleMatcher getExampleMatcher() {
 		return ExampleMatcher.matching().withIgnoreCase().withMatcher("name", new GenericPropertyMatcher().contains())
+				.withMatcher("city.name", new GenericPropertyMatcher().contains())
+				.withMatcher("email", new GenericPropertyMatcher().contains())
 				.withMatcher("state", new GenericPropertyMatcher().contains())
 				.withMatcher("role", new GenericPropertyMatcher().contains());
 
