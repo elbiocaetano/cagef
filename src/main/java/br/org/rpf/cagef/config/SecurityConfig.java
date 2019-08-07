@@ -49,7 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		if (Arrays.asList(env.getActiveProfiles()).contains("test")) {
             http.headers().frameOptions().disable();
-        }
+        } else {
 		
 		http.cors().and().csrf().disable();
 		http.authorizeRequests()
@@ -68,6 +68,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			}
 		});
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        }
 	}
 	
 	@Override

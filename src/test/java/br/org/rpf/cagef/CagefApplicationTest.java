@@ -7,7 +7,7 @@ import junit.framework.TestSuite;
 /**
  * Unit test for simple App.
  */
-public class CagefApllicationTest 
+public class CagefApplicationTest 
     extends TestCase
 {
     /**
@@ -15,7 +15,7 @@ public class CagefApllicationTest
      *
      * @param testName name of the test case
      */
-    public CagefApllicationTest( String testName )
+    public CagefApplicationTest( String testName )
     {
         super( testName );
     }
@@ -25,7 +25,7 @@ public class CagefApllicationTest
      */
     public static Test suite()
     {
-        return new TestSuite( CagefApllicationTest.class );
+        return new TestSuite( CagefApplicationTest.class );
     }
 
     /**
