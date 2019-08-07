@@ -19,6 +19,11 @@ public class MinistryOrPositionDTO implements Serializable{
 		this.description = description;
 	}
 	
+	public MinistryOrPositionDTO(String description) {
+		super();
+		this.description = description;
+	}
+	
 	public Long getId() {
 		return id;
 	}

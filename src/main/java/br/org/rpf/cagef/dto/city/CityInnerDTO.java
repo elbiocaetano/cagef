@@ -12,6 +12,15 @@ public class CityInnerDTO implements Serializable{
 	@NotNull
 	@Min(1)
 	private Long id;
+	
+	public CityInnerDTO() {
+		super();
+	}
+
+	public CityInnerDTO(@NotNull @Min(1) Long id) {
+		this();
+		this.id = id;
+	}
 
 	public Long getId() {
 		return id;

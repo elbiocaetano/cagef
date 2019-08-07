@@ -1,6 +1,5 @@
 package br.org.rpf.cagef.service.impl;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +43,7 @@ public class VolunteerServiceImpl implements VolunteerService {
 			String ministryOrPositionDescription, Long[] ministryOrPositionIds, int offset, int limit, String orderBy,
 			String direction) {
 		if (!this.userService.isAdmin()) {
-			cityIds = new Long[1];
-			Arrays.fill(cityIds, UserService.authenticated().getCity().getId());
+			cityIds = new Long[] { UserService.authenticated().getCity().getId() };
 		}
 
 		Page<Volunteer> page = volunteerRepository.findAll(
@@ -61,12 +59,7 @@ public class VolunteerServiceImpl implements VolunteerService {
 	
 	@Override
 	public Volunteer save(VolunteerDTO volunteerDTO) {
-		try {
-			return volunteerRepository.save(fromDTO(volunteerDTO));
-		} catch(Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
+		return volunteerRepository.save(fromDTO(volunteerDTO));
 	}
 	
 	@Override
@@ -78,8 +71,8 @@ public class VolunteerServiceImpl implements VolunteerService {
 	
 	@Override
 	public void remove(Long id) {
-		Volunteer casadeOracao = this.volunteerRepository.findById(id).orElseThrow(() -> new org.hibernate.ObjectNotFoundException(id, Volunteer.class.getName()));;
-		this.volunteerRepository.delete(casadeOracao);
+		Volunteer volunteer = this.volunteerRepository.findById(id).orElseThrow(() -> new org.hibernate.ObjectNotFoundException(id, Volunteer.class.getName()));;
+		this.volunteerRepository.delete(volunteer);
 	}
 
 	private Volunteer fromDTO(VolunteerDTO volunteerDTO) {

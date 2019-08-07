@@ -21,6 +21,18 @@ public class PrayingHouseDTO implements Serializable {
 	@Valid
 	@NotNull
 	private CityInnerDTO city;
+	
+	public PrayingHouseDTO() {
+		super();
+	}
+
+	public PrayingHouseDTO(@NotNull @Length(min = 3, max = 45) String reportCode,
+			@NotNull @Length(min = 3, max = 45) String district, @Valid @NotNull CityInnerDTO city) {
+		this();
+		this.reportCode = reportCode;
+		this.district = district;
+		this.city = city;
+	}
 
 	public String getReportCode() {
 		return reportCode;
