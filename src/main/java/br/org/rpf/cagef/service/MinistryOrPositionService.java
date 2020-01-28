@@ -7,7 +7,7 @@ import br.org.rpf.cagef.entity.MinistryOrPosition;
 
 public interface MinistryOrPositionService {
 
-	public Page<MinistryOrPosition> findAll(Long id, String description, Integer offset, Integer limit, String orderBy, String direction);
+	public Page<MinistryOrPosition> findAll(Long id, Long[] idIn, String description, Integer offset, Integer limit, String orderBy, String direction);
 
 	public MinistryOrPosition byId(Long id);
 

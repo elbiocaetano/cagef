@@ -1,10 +1,12 @@
 package br.org.rpf.cagef.controller;
 
+import java.util.List;
 import java.util.Optional;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.org.rpf.cagef.dto.volunteer.ReportVolunteerProjection;
 import br.org.rpf.cagef.dto.volunteer.VolunteerDTO;
 import br.org.rpf.cagef.entity.Volunteer;
 import br.org.rpf.cagef.service.VolunteerService;
@@ -24,6 +27,7 @@ import br.org.rpf.cagef.service.VolunteerService;
 public class VolunteerController {
 	
 	@Autowired
+	@Qualifier("volunteerService")
 	private VolunteerService volunteerService;
 
 	@CrossOrigin(origins = "*", methods={RequestMethod.GET, RequestMethod.OPTIONS})
@@ -65,5 +69,13 @@ public class VolunteerController {
 	public ResponseEntity<Void> remove(@PathVariable Long id){
 		this.volunteerService.remove(id);
 		return ResponseEntity.noContent().build();
+	}
+	
+	@CrossOrigin(origins = "*", methods={RequestMethod.GET, RequestMethod.OPTIONS})
+	@RequestMapping(value="/report", method=RequestMethod.GET)
+	public ResponseEntity<List<ReportVolunteerProjection>> report(
+			@RequestParam(value="city.id",  required=false) List<Long> cityIds,
+			@RequestParam(value="ministryOrPosition.id", required=false) List<Long> ministryOrPositionIds) {
+		return ResponseEntity.ok(this.volunteerService.reportVolunteersByCityAndMinistryOrPosition(cityIds, ministryOrPositionIds));
 	}
 }

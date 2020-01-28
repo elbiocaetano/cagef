@@ -14,6 +14,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -21,8 +23,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import br.org.rpf.cagef.dto.musician.MusicianDTO;
 import br.org.rpf.cagef.dto.volunteer.VolunteerDTO;
 
 /**
@@ -31,6 +37,7 @@ import br.org.rpf.cagef.dto.volunteer.VolunteerDTO;
  */
 @Entity
 @Table(name = "voluntarios")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class Volunteer implements Serializable {
 
 	private static final long serialVersionUID = 8909322380615594035L;
@@ -46,8 +53,9 @@ public class Volunteer implements Serializable {
 	private String address;
 	@Column(name = "bairro")
 	private String district;
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "id_cidade")
+	@Fetch(FetchMode.JOIN)
 	private City city;
 	@Column(name = "cep")
 	private String zipCode;
@@ -59,8 +67,9 @@ public class Volunteer implements Serializable {
 	private String email;
 	@Column(name = "data_nascimento")
 	private LocalDate dateOfBirth;
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "naturalidade")
+	@Fetch(FetchMode.JOIN)
 	private City naturalness;
 	@Column(name = "data_batismo")
 	private LocalDate dateOfBaptism;
@@ -85,8 +94,9 @@ public class Volunteer implements Serializable {
 	@JoinColumn(name = "cod_relatorio")
 	@ManyToOne(cascade = CascadeType.MERGE)
 	private PrayingHouse prayingHouse;
-	@ManyToMany(fetch = FetchType.EAGER)
+	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "voluntarios_ministeriocargos", joinColumns = @JoinColumn(name = "id_voluntario", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "id_ministeriocargos", referencedColumnName = "id_ministeriocargo"))
+	@Fetch(FetchMode.JOIN)
 	private List<MinistryOrPosition> ministryOrPosition;
 
 	public Volunteer() {
@@ -106,6 +116,22 @@ public class Volunteer implements Serializable {
 		this.id = id;
 		this.name = name;
 		this.city = city;
+		this.ministryOrPosition = ministryOrPosition;
+	}
+	
+	public Volunteer (Long id, String name, City city, String phoneNumber, String celNumber, String email, LocalDate dateOfBirth, LocalDate updatedAt, LocalDate createdAt, PrayingHouse prayingHouse,
+			List<MinistryOrPosition> ministryOrPosition) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.city = city;
+		this.phoneNumber = phoneNumber;
+		this.celNumber = celNumber;
+		this.email = email;
+		this.dateOfBirth = dateOfBirth;
+		this.updatedAt = updatedAt;
+		this.createdAt = createdAt;
+		this.prayingHouse = prayingHouse;
 		this.ministryOrPosition = ministryOrPosition;
 	}
 
@@ -162,6 +188,21 @@ public class Volunteer implements Serializable {
 		this.promise = volunteerDTO.getPromise();
 		this.updatedAt = LocalDate.now();
 		this.createdAt = LocalDate.now();
+		this.prayingHouse = prayingHouse;
+		this.ministryOrPosition = ministryOrPositions;
+	}
+	
+	public Volunteer(MusicianDTO volunteerDTO, City city, City naturalness, PrayingHouse prayingHouse,
+			List<MinistryOrPosition> ministryOrPositions) {
+		this.id = volunteerDTO.getId();
+		this.name = volunteerDTO.getName();
+		this.city = city;
+		this.phoneNumber = volunteerDTO.getPhoneNumber();
+		this.celNumber = volunteerDTO.getCelNumber();
+		this.email = volunteerDTO.getEmail();
+		this.dateOfBirth = volunteerDTO.getDateOfBirth();
+		this.naturalness = naturalness;
+		this.updatedAt = LocalDate.now();
 		this.prayingHouse = prayingHouse;
 		this.ministryOrPosition = ministryOrPositions;
 	}

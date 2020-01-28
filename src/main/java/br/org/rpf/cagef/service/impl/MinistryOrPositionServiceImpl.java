@@ -1,9 +1,6 @@
 package br.org.rpf.cagef.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
-import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
@@ -13,6 +10,7 @@ import br.org.rpf.cagef.dto.ministryorposition.MinistryOrPositionDTO;
 import br.org.rpf.cagef.entity.MinistryOrPosition;
 import br.org.rpf.cagef.repository.MinistryOrPositionRepository;
 import br.org.rpf.cagef.service.MinistryOrPositionService;
+import br.org.rpf.cagef.util.MinistryOrPositionSpecification;
 
 @Service
 public class MinistryOrPositionServiceImpl implements MinistryOrPositionService {
@@ -21,10 +19,11 @@ public class MinistryOrPositionServiceImpl implements MinistryOrPositionService 
 	private MinistryOrPositionRepository ministryOrPositionRepository;
 	
 	@Override
-	public Page<MinistryOrPosition> findAll(Long id, String description, Integer offset, Integer limit, String orderBy,
+	public Page<MinistryOrPosition> findAll(Long id, Long[] idIn, String description, Integer offset, Integer limit, String orderBy,
 			String direction) {
+		
 		return this.ministryOrPositionRepository.findAll(
-				Example.of(new MinistryOrPosition(id, description), getExampleMatcher()),
+				new MinistryOrPositionSpecification(id, description, idIn),
 				PageRequest.of(offset, limit, Direction.fromString(direction), orderBy));
 	}
 	
@@ -52,9 +51,4 @@ public class MinistryOrPositionServiceImpl implements MinistryOrPositionService 
 		return new MinistryOrPosition(id, ministryOrPositionDTO.getDescription());
 	}
 
-	private ExampleMatcher getExampleMatcher() {
-		return ExampleMatcher.matching().withIgnoreCase().withMatcher("id", new GenericPropertyMatcher().contains())
-				.withMatcher("description", new GenericPropertyMatcher().contains());
-
-	}
 }

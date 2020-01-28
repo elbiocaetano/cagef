@@ -4,9 +4,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
-import br.org.rpf.cagef.entity.MinistryOrPosition;
+import br.org.rpf.cagef.entity.Instrument;
 
 @Repository
-public interface MinistryOrPositionRepository extends JpaRepository<MinistryOrPosition, Long>, JpaSpecificationExecutor<MinistryOrPosition> {
-	
+public interface InstrumentRepository extends JpaRepository<Instrument, Long>, JpaSpecificationExecutor<Instrument> {
+
 }
