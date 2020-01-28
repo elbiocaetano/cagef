@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
@@ -21,9 +22,10 @@ public class VolunteerSpecification implements Specification<Volunteer> {
 	private String cityName;
 	private String ministryOrPositionDescription;
 	private Long[] ministryOrPositionIds;
+	private Boolean regional;
 
 	public VolunteerSpecification(Long id, String name, Long[] cityIds, String cityName,
-			String ministryOrPositionDescription, Long[] ministryOrPositionIds) {
+			String ministryOrPositionDescription, Long[] ministryOrPositionIds, Boolean regional) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -31,32 +33,39 @@ public class VolunteerSpecification implements Specification<Volunteer> {
 		this.cityName = cityName;
 		this.ministryOrPositionDescription = ministryOrPositionDescription;
 		this.ministryOrPositionIds = ministryOrPositionIds;
+		this.regional = regional;
 	}
 
 	@Override
 	public Predicate toPredicate(Root<Volunteer> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 		List<Predicate> predicates = new ArrayList<>();
+		// where(criteriaBuilder.equal(root.get("id"), this.id));
+		
+		
+		query.distinct(false);
 		if (this.id != null) {
-			predicates.add(criteriaBuilder.and(criteriaBuilder.equal(root.get("id"), this.id)));
+			predicates.add(criteriaBuilder.equal(root.get("id"), this.id));
 		}
 		if (this.name != null) {
-			predicates.add(criteriaBuilder.and(criteriaBuilder.like(root.get("name"), "%" + this.name + "%")));
+			predicates.add(criteriaBuilder.like(root.get("name"), "%" + this.name + "%"));
 		}
 		if (this.cityIds != null && this.cityIds.length > 0) {
-			predicates.add(criteriaBuilder.and(root.join("city").get("id").in((Object[]) this.cityIds)));
+			predicates.add(criteriaBuilder.and(root.join("city", JoinType.INNER).get("id").in((Object[]) this.cityIds)));
 		}
 		if (this.cityName != null) {
-			predicates.add(criteriaBuilder
-					.and(criteriaBuilder.like(root.join("city").get("name"), "%" + this.cityName + "%")));
+			predicates.add(criteriaBuilder.like(root.join("city", JoinType.INNER).get("name"), "%" + this.cityName + "%"));
 		}
 		if (this.ministryOrPositionDescription != null) {
-			predicates.add(criteriaBuilder.and(criteriaBuilder.like(root.join("ministryOrPosition").get("description"),
-					"%" + this.ministryOrPositionDescription + "%")));
+			predicates.add(criteriaBuilder.like(root.join("ministryOrPosition", JoinType.INNER).get("description"),
+					"%" + this.ministryOrPositionDescription + "%"));
 		}
 		if (this.ministryOrPositionIds != null && this.ministryOrPositionIds.length > 0) {
-			predicates.add(criteriaBuilder
-					.and(root.join("ministryOrPosition").get("id").in((Object[]) this.ministryOrPositionIds)));
+			predicates.add(root.join("ministryOrPosition", JoinType.INNER).get("id").in((Object[]) this.ministryOrPositionIds));
 		}
+		if (this.regional != null) {
+			predicates.add(criteriaBuilder.equal(root.join("city", JoinType.INNER).get("regional"), this.regional));
+		}
+		
 		return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));
 	}
 

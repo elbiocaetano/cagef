@@ -30,12 +30,13 @@ public class MinistryOrPositionController {
 	@RequestMapping(method=RequestMethod.GET)
 	public ResponseEntity<Page<MinistryOrPosition>> buscar(
 			@RequestParam(value="id", required=false) Long id,
+			@RequestParam(value="id.in", required=false) Long[] idIn,
 			@RequestParam(value="description", required=false) String description,
 			@RequestParam(value="offset", defaultValue="0") Integer offset, 
 			@RequestParam(value="limit", defaultValue="24") Integer limit, 
 			@RequestParam(value="orderBy", defaultValue="id") String orderBy, 
 			@RequestParam(value="direction", defaultValue="ASC") String direction) {
-		return ResponseEntity.ok(this.ministryOrPositionService.findAll(id, description, offset, limit, orderBy, direction));
+		return ResponseEntity.ok(this.ministryOrPositionService.findAll(id, idIn, description, offset, limit, orderBy, direction));
 	}
 	
 	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.OPTIONS })

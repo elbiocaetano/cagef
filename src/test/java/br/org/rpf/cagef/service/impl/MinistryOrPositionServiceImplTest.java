@@ -62,7 +62,7 @@ public class MinistryOrPositionServiceImplTest {
 		expectedEx.expect(DataIntegrityViolationException.class);
 		expectedEx.expectMessage("DataIntegrityViolationException");
 
-		this.ministryOrPositionService.findAll(null, null, 0, 24, "id", "ASC");
+		this.ministryOrPositionService.findAll(null, null, null, 0, 24, "id", "ASC");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -70,7 +70,7 @@ public class MinistryOrPositionServiceImplTest {
 	public void findAllSuccessTest() {
 		Mockito.when(ministryOrPositionRepository.findAll(any(Example.class), any(Pageable.class)))
 				.thenReturn(new PageImpl<MinistryOrPosition>(getMinisteriesOrPositionsList()));
-		Page<MinistryOrPosition> ministeriesOrPositions = this.ministryOrPositionService.findAll(null, null, 0, 24,
+		Page<MinistryOrPosition> ministeriesOrPositions = this.ministryOrPositionService.findAll(null, null, null, 0, 24,
 				"id", "ASC");
 		List<MinistryOrPosition> ministeriesOrPositionsList = ministeriesOrPositions.getContent();
 		assertEquals(4, ministeriesOrPositionsList.size());
