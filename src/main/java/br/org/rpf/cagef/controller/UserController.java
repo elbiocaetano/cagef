@@ -50,7 +50,7 @@ public class UserController {
 	
 	@CrossOrigin(origins = "*", methods = { RequestMethod.POST, RequestMethod.OPTIONS })
 	@RequestMapping(method = RequestMethod.POST)
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','ADMIN_MUSICA')")
 	public ResponseEntity<Void> save(@RequestBody UserDTO userDTO) {
 		User user = this.userService.save(userDTO);
 
@@ -60,7 +60,7 @@ public class UserController {
 	
 	@CrossOrigin(origins = "*", methods = { RequestMethod.PUT, RequestMethod.OPTIONS })
 	@RequestMapping(value="/{id}", method = RequestMethod.PUT)
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','ADMIN_MUSICA')")
 	public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody UserDTO userDTO) {
 		this.userService.update(id, userDTO);
 
@@ -69,7 +69,7 @@ public class UserController {
 	
 	@CrossOrigin(origins = "*", methods={RequestMethod.DELETE, RequestMethod.OPTIONS})
 	@RequestMapping(value="/{id}", method=RequestMethod.DELETE)
-	@PreAuthorize("hasAnyRole('ADMIN')")
+	@PreAuthorize("hasAnyRole('ADMIN','ADMIN_MUSICA')")
 	public ResponseEntity<Void> remove(@PathVariable Long id){
 		this.userService.remove(id);
 		return ResponseEntity.noContent().build();
