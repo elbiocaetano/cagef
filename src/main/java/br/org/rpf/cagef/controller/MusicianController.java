@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.org.rpf.cagef.dto.musician.MusicianDTO;
+import br.org.rpf.cagef.entity.Musician;
 import br.org.rpf.cagef.entity.Volunteer;
 import br.org.rpf.cagef.service.MusicianService;
 
@@ -30,7 +31,7 @@ public class MusicianController {
 
 	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.OPTIONS })
 	@RequestMapping(method = RequestMethod.GET)
-	public ResponseEntity<Page<Volunteer>> findAll(@RequestParam(value = "id", required = false) Long id,
+	public ResponseEntity<Page<Musician>> findAll(@RequestParam(value = "id", required = false) Long id,
 			@RequestParam(value = "name", required = false) String name,
 			@RequestParam(value = "city.id", required = false) Long[] cityIds,
 			@RequestParam(value = "city.name", required = false) String cityName,
