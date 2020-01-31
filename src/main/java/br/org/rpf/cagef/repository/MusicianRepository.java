@@ -26,5 +26,10 @@ public interface MusicianRepository extends JpaRepository<Musician, Long>, JpaSp
 	@Modifying(flushAutomatically = true, clearAutomatically = true)
 	@Query(value = "insert into musician values(:oficializationDate, :musicianId, :instrumentId)", nativeQuery = true)
 	public void createMusician(@Param("instrumentId") Long instrumentId, @Param("oficializationDate") LocalDate oficializationDate, @Param("musicianId") Long id);
+
+	@Transactional(propagation = Propagation.REQUIRED)
+	@Modifying(flushAutomatically = true, clearAutomatically = true)
+	@Query(value = "delete from musician where id = :id", nativeQuery = true)
+	public void removeRelationship(@Param("id") Long id);
 	
 }

@@ -12,11 +12,11 @@ import javax.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.ObjectUtils;
 
-import br.org.rpf.cagef.entity.Volunteer;
+import br.org.rpf.cagef.entity.Musician;
 
-public class MusicianSpecification implements Specification<Volunteer> {
+public class MusicianSpecification implements Specification<Musician> {
 	private static final long serialVersionUID = -8286869602726971063L;
-	
+
 	private static final Long[] VALID_IDS = { 28l, 29l, 30l, 32l, 33l, 49l };
 
 	private Long id;
@@ -37,8 +37,9 @@ public class MusicianSpecification implements Specification<Volunteer> {
 		this.cityIds = cityIds;
 		this.cityName = cityName;
 		this.ministryOrPositionDescription = ministryOrPositionDescription;
-		if(!ObjectUtils.isEmpty(ministryOrPositionIds)) {
-			Long[] ids = (Long[]) List.of(ministryOrPositionIds).stream().filter(m -> List.of(VALID_IDS).contains(m)).distinct().toArray();
+		if (!ObjectUtils.isEmpty(ministryOrPositionIds)) {
+			Long[] ids = (Long[]) List.of(ministryOrPositionIds).stream().filter(m -> List.of(VALID_IDS).contains(m))
+					.distinct().toArray();
 			if (!ObjectUtils.isEmpty(ids)) {
 				this.ministryOrPositionIds = ids;
 			}
@@ -48,10 +49,9 @@ public class MusicianSpecification implements Specification<Volunteer> {
 	}
 
 	@Override
-	public Predicate toPredicate(Root<Volunteer> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+	public Predicate toPredicate(Root<Musician> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 		List<Predicate> predicates = new ArrayList<>();
 
-		query.distinct(true);
 		if (this.id != null) {
 			predicates.add(criteriaBuilder.equal(root.get("id"), this.id));
 		}
@@ -75,11 +75,11 @@ public class MusicianSpecification implements Specification<Volunteer> {
 					.in((Object[]) this.ministryOrPositionIds));
 		}
 		if (this.instrumentDescription != null) {
-			predicates.add(criteriaBuilder.like(root.join("musician", JoinType.INNER).get("description"),
+			predicates.add(criteriaBuilder.like(root.join("instrument", JoinType.INNER).get("description"),
 					"%" + this.instrumentDescription + "%"));
 		}
 		if (!ObjectUtils.isEmpty(instrumentIds)) {
-			predicates.add(root.join("musician", JoinType.INNER).get("id").in((Object[]) this.instrumentIds));
+			predicates.add(root.join("instrument", JoinType.INNER).get("id").in((Object[]) this.instrumentIds));
 		}
 
 		return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));

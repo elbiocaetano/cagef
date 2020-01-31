@@ -41,7 +41,11 @@ public class VolunteerServiceImpl extends DefaultVolunteerServiceImpl implements
 
 	@Override
 	public Volunteer save(BaseVolunteerDTO volunteerDTO) {
-		return volunteerRepository.save(fromDTO((VolunteerDTO) volunteerDTO));
+		Volunteer v = volunteerRepository.save(fromDTO((VolunteerDTO) volunteerDTO));
+		if(hasMusicMinistery(volunteerDTO)) {
+			this.musicianRepository.createMusician(null, null, v.getId());
+		};
+		return v;
 	}
 
 	@Override

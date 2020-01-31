@@ -29,22 +29,17 @@ public class MusicianServiceImpl extends DefaultVolunteerServiceImpl implements 
 	private UserService userService;
 
 	@Override
-	public Page<Volunteer> findAll(Long id, String name, Long[] cityIds, String cityName,
+	public Page<Musician> findAll(Long id, String name, Long[] cityIds, String cityName,
 			String ministryOrPositionDescription, Long[] ministryOrPositionIds, Long[] instrumentIds,
 			String instrumentDescription, int offset, int limit, String orderBy, String direction) {
 		if (!this.userService.isAdmin()) {
 			cityIds = new Long[] { UserService.authenticated().getCity().getId() };
 		}
 
-		return volunteerRepository.findAll(
+		return musicianRepository.findAll(
 				new MusicianSpecification(id, name, cityIds, cityName, ministryOrPositionDescription,
 						ministryOrPositionIds, instrumentDescription, instrumentIds),
-				PageRequest.of(offset, limit, Direction.fromString(direction), orderBy)).map(v -> {
-					if (v instanceof Musician) {
-						return (Musician) v;
-					}
-					return v;
-				});
+				PageRequest.of(offset, limit, Direction.fromString(direction), orderBy));
 	}
 
 	@Override

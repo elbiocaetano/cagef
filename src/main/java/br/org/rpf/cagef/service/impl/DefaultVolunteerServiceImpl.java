@@ -24,6 +24,8 @@ import br.org.rpf.cagef.repository.VolunteerRepository;
 import br.org.rpf.cagef.service.DefaultVolunteerService;
 
 public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerService {
+	
+	protected static final List<Long> MUSIC_MINISTERIES = List.of(28l, 29l, 30l, 32l, 33l, 49l);
 
 	@Autowired
 	private CityRepository cityRepository;
@@ -42,6 +44,7 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 
 	@Autowired
 	protected MusicianRepository musicianRepository;
+	
 
 	public Volunteer byId(Long id) {
 		Volunteer v = volunteerRepository.findById(id)
@@ -60,11 +63,19 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 				.orElseThrow(() -> new org.hibernate.ObjectNotFoundException(id, Volunteer.class.getName()));
 
 		baseDTO.setId(v.getId());
+		if(!hasMusicMinistery(baseDTO)) {
+			this.musicianRepository.removeRelationship(v.getId());
+		}
 		if (baseDTO instanceof VolunteerDTO) {
 			this.musicianRepository.findById(v.getId()).ifPresentOrElse(m -> {
 				this.musicianRepository.save(fromDTO((VolunteerDTO) baseDTO, m));
 			}, () -> {
-				this.save((VolunteerDTO) baseDTO);
+				if(hasMusicMinistery(baseDTO)) {
+					this.musicianRepository.createMusician(null, null, v.getId());
+					this.musicianRepository.save(fromDTO((VolunteerDTO) baseDTO, new Musician()));
+				} else {
+					this.save((VolunteerDTO) baseDTO);
+				}
 			});
 		} else {
 			this.musicianRepository.findById(v.getId()).ifPresentOrElse(m -> {
@@ -145,6 +156,10 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 
 		return new Musician(musicianDTO, cidade, null, prayingHouse, ministryOrPositions, instrument,
 				musicianDTO.getOficializationDate());
+	}
+	
+	protected boolean hasMusicMinistery(BaseVolunteerDTO baseDTO) {
+		return baseDTO.getMinistryOrPosition().getIds().stream().filter(m -> MUSIC_MINISTERIES.contains(m)).findAny().isPresent();
 	}
 
 	@Override
