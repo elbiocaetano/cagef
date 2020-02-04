@@ -19,10 +19,10 @@ public class InstrumentServiceImpl implements InstrumentService {
 	@Autowired
 	private InstrumentRepository instrumentRepository;
 
-	public Page<Instrument> findAll(Long id, String name, Long[] categoryIds, String categoryName, int offset, int limit, String orderBy,
+	public Page<Instrument> findAll(Long id, String description, Long[] categoryIds, String categoryName, int offset, int limit, String orderBy,
 			String direction) {
 
-		return instrumentRepository.findAll(new InstrumentSpecification(id, name, categoryIds, categoryName),
+		return instrumentRepository.findAll(new InstrumentSpecification(id, description, categoryIds, categoryName),
 				PageRequest.of(offset, limit, Direction.fromString(direction), orderBy));
 	}
 

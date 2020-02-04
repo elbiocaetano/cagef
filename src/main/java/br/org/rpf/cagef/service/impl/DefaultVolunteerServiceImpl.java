@@ -134,7 +134,7 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 				.findAllById(volunteerDTO.getMinistryOrPosition().getIds());
 
 		return new Musician(volunteerDTO, cidade, naturalness, prayingHouse, ministryOrPositions, m.getInstrument(),
-				m.getOficializationDate());
+				m.getOficializationDate(), m.getRehearsalDate(), m.getRjmExamDate(), m.getOficialCultExamDate(), m.getObservation());
 	}
 
 	protected Musician fromDTO(MusicianDTO musicianDTO) {
@@ -155,7 +155,7 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 				.findAllById(musicianDTO.getMinistryOrPosition().getIds());
 
 		return new Musician(musicianDTO, cidade, null, prayingHouse, ministryOrPositions, instrument,
-				musicianDTO.getOficializationDate());
+				musicianDTO.getOficializationDate(), musicianDTO.getRehearsalDate(), musicianDTO.getRjmExamDate(), musicianDTO.getOficialCultExamDate(), musicianDTO.getObservation());
 	}
 	
 	protected boolean hasMusicMinistery(BaseVolunteerDTO baseDTO) {

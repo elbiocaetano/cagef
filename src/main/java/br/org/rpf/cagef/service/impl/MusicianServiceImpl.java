@@ -32,7 +32,7 @@ public class MusicianServiceImpl extends DefaultVolunteerServiceImpl implements 
 	public Page<Musician> findAll(Long id, String name, Long[] cityIds, String cityName,
 			String ministryOrPositionDescription, Long[] ministryOrPositionIds, Long[] instrumentIds,
 			String instrumentDescription, int offset, int limit, String orderBy, String direction) {
-		if (!this.userService.isAdmin()) {
+		if (!this.userService.isAnyAdmin()) {
 			cityIds = new Long[] { UserService.authenticated().getCity().getId() };
 		}
 
