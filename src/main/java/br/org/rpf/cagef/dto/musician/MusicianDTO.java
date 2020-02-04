@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -27,6 +28,20 @@ public class MusicianDTO extends BaseVolunteerDTO {
 	@JsonDeserialize(using = LocalDateDeserializer.class)
 	@DateTimeFormat(pattern = "dd/MM/yyyy")
 	private LocalDate oficializationDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@DateTimeFormat(pattern = "dd/MM/yyyy")
+	private LocalDate rehearsalDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@DateTimeFormat(pattern = "dd/MM/yyyy")
+	private LocalDate rjmExamDate;
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")
+	@JsonDeserialize(using = LocalDateDeserializer.class)
+	@DateTimeFormat(pattern = "dd/MM/yyyy")
+	private LocalDate oficialCultExamDate;
+	@Length(min = 1, max = 65535)
+	private String observation;
 
 	public MusicianDTO() {
 		super();
@@ -54,5 +69,37 @@ public class MusicianDTO extends BaseVolunteerDTO {
 
 	public void setOficializationDate(LocalDate oficializationDate) {
 		this.oficializationDate = oficializationDate;
+	}
+
+	public LocalDate getRehearsalDate() {
+		return rehearsalDate;
+	}
+
+	public void setRehearsalDate(LocalDate rehearsalDate) {
+		this.rehearsalDate = rehearsalDate;
+	}
+
+	public LocalDate getRjmExamDate() {
+		return rjmExamDate;
+	}
+
+	public void setRjmExamDate(LocalDate rjmExamDate) {
+		this.rjmExamDate = rjmExamDate;
+	}
+
+	public LocalDate getOficialCultExamDate() {
+		return oficialCultExamDate;
+	}
+
+	public void setOficialCultExamDate(LocalDate oficialCultExamDate) {
+		this.oficialCultExamDate = oficialCultExamDate;
+	}
+
+	public String getObservation() {
+		return observation;
+	}
+
+	public void setObservation(String observation) {
+		this.observation = observation;
 	}
 }

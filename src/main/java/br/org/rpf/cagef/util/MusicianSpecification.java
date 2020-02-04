@@ -52,6 +52,7 @@ public class MusicianSpecification implements Specification<Musician> {
 	public Predicate toPredicate(Root<Musician> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 		List<Predicate> predicates = new ArrayList<>();
 
+		query.distinct(true);
 		if (this.id != null) {
 			predicates.add(criteriaBuilder.equal(root.get("id"), this.id));
 		}

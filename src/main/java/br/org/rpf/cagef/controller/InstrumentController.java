@@ -29,7 +29,7 @@ public class InstrumentController {
 	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.OPTIONS })
 	@RequestMapping(method = RequestMethod.GET)
 	public ResponseEntity<Page<Instrument>> findAll(@RequestParam(value = "id", required = false) Long id,
-			@RequestParam(value = "name", required = false) String name,
+			@RequestParam(value = "description", required = false) String description,
 			@RequestParam(value = "category.id", required = false) Long[] categoryIds,
 			@RequestParam(value = "category.description", required = false) String categoryName,
 			@RequestParam(value = "offset", defaultValue = "0") Integer offset,
@@ -37,7 +37,7 @@ public class InstrumentController {
 			@RequestParam(value = "orderBy", defaultValue = "id") String orderBy,
 			@RequestParam(value = "direction", defaultValue = "ASC") String direction) {
 		return ResponseEntity.ok(
-				this.instrumentService.findAll(id, name, categoryIds, categoryName, offset, limit, orderBy, direction));
+				this.instrumentService.findAll(id, description, categoryIds, categoryName, offset, limit, orderBy, direction));
 	}
 
 	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.OPTIONS })

@@ -29,6 +29,14 @@ public class Musician extends Volunteer implements Serializable {
 	private Instrument instrument;
 	@Column(name = "oficialization_date")
 	private LocalDate oficializationDate;
+	@Column(name = "rehearsal_date")
+	private LocalDate rehearsalDate;
+	@Column(name = "rjm_exam_date")
+	private LocalDate rjmExamDate;
+	@Column(name = "oficial_cult_exam_date")
+	private LocalDate oficialCultExamDate;
+	@Column(name = "observation", length = 65535,columnDefinition="Text")
+	private String observation;
 
 	public Musician() {
 	}
@@ -43,26 +51,39 @@ public class Musician extends Volunteer implements Serializable {
 
 	public Musician(Long id, String name, City city, String phoneNumber, String celNumber, String email,
 			LocalDate dateOfBirth, LocalDate updatedAt, LocalDate createdAt, PrayingHouse prayingHouse,
-			List<MinistryOrPosition> ministryOrPosition, Instrument instrument, LocalDate oficializationDate) {
+			List<MinistryOrPosition> ministryOrPosition, Instrument instrument, LocalDate oficializationDate, LocalDate rehearsalDate, LocalDate rjmExamDate, LocalDate oficialCultExamDate, String observation) {
 		super(id, name, city, phoneNumber, celNumber, email, dateOfBirth, updatedAt, createdAt, prayingHouse,
 				ministryOrPosition);
 		this.instrument = instrument;
 		this.oficializationDate = oficializationDate;
+		this.rehearsalDate = rehearsalDate;
+		this.rjmExamDate = rjmExamDate;
+		this.oficialCultExamDate = oficialCultExamDate;
+		this.observation = observation;
 	}
 
 
 	public Musician(VolunteerDTO volunteerDTO, City city, City naturalness, PrayingHouse prayingHouse,
-			List<MinistryOrPosition> ministryOrPositions, Instrument instrument, LocalDate oficializationDate) {
+			List<MinistryOrPosition> ministryOrPositions, Instrument instrument, LocalDate oficializationDate, LocalDate rehearsalDate, LocalDate rjmExamDate, LocalDate oficialCultExamDate, String observation) {
 		super(volunteerDTO, city, naturalness, prayingHouse, ministryOrPositions);
 		this.instrument = instrument;
 		this.oficializationDate = oficializationDate;
+		this.oficializationDate = oficializationDate;
+		this.rehearsalDate = rehearsalDate;
+		this.rjmExamDate = rjmExamDate;
+		this.oficialCultExamDate = oficialCultExamDate;
+		this.observation = observation;
 	}
 	
 	public Musician(MusicianDTO musicianDTO, City city, City naturalness, PrayingHouse prayingHouse,
-			List<MinistryOrPosition> ministryOrPositions, Instrument instrument, LocalDate oficializationDate) {
+			List<MinistryOrPosition> ministryOrPositions, Instrument instrument, LocalDate oficializationDate, LocalDate rehearsalDate, LocalDate rjmExamDate, LocalDate oficialCultExamDate, String observation) {
 		super(musicianDTO, city, naturalness, prayingHouse, ministryOrPositions);
 		this.instrument = instrument;
 		this.oficializationDate = oficializationDate;
+		this.rehearsalDate = rehearsalDate;
+		this.rjmExamDate = rjmExamDate;
+		this.oficialCultExamDate = oficialCultExamDate;
+		this.observation = observation;
 	}
 
 	public Instrument getInstrument() {
@@ -79,5 +100,37 @@ public class Musician extends Volunteer implements Serializable {
 
 	public void setOficializationDate(LocalDate oficializationDate) {
 		this.oficializationDate = oficializationDate;
+	}
+
+	public LocalDate getRehearsalDate() {
+		return rehearsalDate;
+	}
+
+	public void setRehearsalDate(LocalDate rehearsalDate) {
+		this.rehearsalDate = rehearsalDate;
+	}
+
+	public LocalDate getRjmExamDate() {
+		return rjmExamDate;
+	}
+
+	public void setRjmExamDate(LocalDate rjmExamDate) {
+		this.rjmExamDate = rjmExamDate;
+	}
+
+	public LocalDate getOficialCultExamDate() {
+		return oficialCultExamDate;
+	}
+
+	public void setOficialCultExamDate(LocalDate oficialCultExamDate) {
+		this.oficialCultExamDate = oficialCultExamDate;
+	}
+
+	public String getObservation() {
+		return observation;
+	}
+
+	public void setObservation(String observation) {
+		this.observation = observation;
 	}
 }

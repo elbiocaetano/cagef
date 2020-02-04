@@ -31,4 +31,8 @@ public interface UserService extends UserDetailsService{
 	public default boolean isAdmin() {
 		return authenticated().getAuthorities().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getAuthority()));
 	}
+	
+	public default boolean isAnyAdmin() {
+		return authenticated().getAuthorities().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getAuthority()) || "ROLE_ADMIN_MUSICA".equals(role.getAuthority()));
+	}
 }
