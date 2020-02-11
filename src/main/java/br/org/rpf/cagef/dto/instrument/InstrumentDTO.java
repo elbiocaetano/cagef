@@ -1,19 +1,19 @@
 package br.org.rpf.cagef.dto.instrument;
 
-public class InstrumentDTO {
-	private Long id;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.Length;
+
+public class InstrumentDTO {
+
+	@NotNull
+	@Length(min = 1)
 	private String description;
 
-	private Long categoryId;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
+	@Valid
+	@NotNull
+	private InstrumentCategoryInnerDTO category;
 
 	public String getDescription() {
 		return description;
@@ -23,11 +23,11 @@ public class InstrumentDTO {
 		this.description = description;
 	}
 
-	public Long getCategoryId() {
-		return categoryId;
+	public InstrumentCategoryInnerDTO getCategory() {
+		return category;
 	}
 
-	public void setCategoryId(Long categoryId) {
-		this.categoryId = categoryId;
+	public void setCategory(InstrumentCategoryInnerDTO category) {
+		this.category = category;
 	}
 }
