@@ -37,7 +37,6 @@ public class InstrumentSpecification implements Specification<Instrument> {
 	@Override
 	public Predicate toPredicate(Root<Instrument> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 		List<Predicate> predicates = new ArrayList<>();
-		query.distinct(true);
 		if (this.id != null) {
 			predicates.add(criteriaBuilder.equal(root.get("id"), this.id));
 		}

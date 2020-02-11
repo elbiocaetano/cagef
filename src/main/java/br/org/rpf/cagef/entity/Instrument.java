@@ -3,7 +3,6 @@ package br.org.rpf.cagef.entity;
 import java.io.Serializable;
 
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -30,7 +29,7 @@ public class Instrument implements Serializable {
 	private String description;
 
 	@JoinColumn(name = "category_id")
-	@ManyToOne(cascade = CascadeType.MERGE)
+	@ManyToOne
 	private InstrumentCategory category;
 
 	public Instrument() {

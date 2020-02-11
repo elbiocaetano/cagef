@@ -16,6 +16,8 @@ import javax.persistence.Table;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "instruments_category")
 public class InstrumentCategory implements Serializable {
@@ -32,6 +34,7 @@ public class InstrumentCategory implements Serializable {
     @Column(name = "description")
 	private String description;
 	
+	@JsonIgnore
 	@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToMany(cascade = CascadeType.MERGE, mappedBy = "category")
 	private List<Instrument> instruments;

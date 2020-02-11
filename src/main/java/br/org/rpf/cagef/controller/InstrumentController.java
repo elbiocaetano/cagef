@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.org.rpf.cagef.dto.instrument.InstrumentDTO;
 import br.org.rpf.cagef.entity.Instrument;
+import br.org.rpf.cagef.entity.InstrumentCategory;
 import br.org.rpf.cagef.service.InstrumentService;
 
 @RestController
@@ -38,6 +39,18 @@ public class InstrumentController {
 			@RequestParam(value = "direction", defaultValue = "ASC") String direction) {
 		return ResponseEntity.ok(
 				this.instrumentService.findAll(id, description, categoryIds, categoryName, offset, limit, orderBy, direction));
+	}
+	
+	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.OPTIONS })
+	@RequestMapping(value = "/categories", method = RequestMethod.GET)
+	public ResponseEntity<Page<InstrumentCategory>> findAll(@RequestParam(value = "id", required = false) Long id,
+			@RequestParam(value = "description", required = false) String description,
+			@RequestParam(value = "offset", defaultValue = "0") Integer offset,
+			@RequestParam(value = "limit", defaultValue = "10") Integer limit,
+			@RequestParam(value = "orderBy", defaultValue = "id") String orderBy,
+			@RequestParam(value = "direction", defaultValue = "ASC") String direction) {
+		return ResponseEntity.ok(
+				this.instrumentService.findAllCategories(id, description, offset, limit, orderBy, direction));
 	}
 
 	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.OPTIONS })
