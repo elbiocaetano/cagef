@@ -3,6 +3,7 @@ package br.org.rpf.cagef.service.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -36,7 +37,9 @@ import br.org.rpf.cagef.dto.volunteer.VolunteerDTO;
 import br.org.rpf.cagef.entity.Volunteer;
 import br.org.rpf.cagef.entity.enums.MaritalStatusEnum;
 import br.org.rpf.cagef.repository.CityRepository;
+import br.org.rpf.cagef.repository.InstrumentRepository;
 import br.org.rpf.cagef.repository.MinistryOrPositionRepository;
+import br.org.rpf.cagef.repository.MusicianRepository;
 import br.org.rpf.cagef.repository.PrayingHouseRepository;
 import br.org.rpf.cagef.repository.VolunteerRepository;
 import br.org.rpf.cagef.service.UserService;
@@ -75,6 +78,12 @@ public class VolunteerServiceImplTest {
 
 	@MockBean
 	private PrayingHouseRepository prayingHouseRepository;
+	
+	@MockBean
+	private MusicianRepository musicianRepository;
+	
+	@MockBean
+	private InstrumentRepository instrumentRepository;
 
 	@MockBean
 	private BCryptPasswordEncoder passwordEncoder;
@@ -439,6 +448,45 @@ public class VolunteerServiceImplTest {
 		assertEquals("abc123", volunteer.getPrayingHouse().getReportCode());
 		assertEquals("Teste", volunteer.getPrayingHouse().getDistrict());
 	}
+	
+	@Test()
+	public void saveVolunteerMusicianSuccessTest() {
+		Mockito.when(volunteerRepository.save(any())).thenReturn(generateVolunteerNotAdmin());
+		Mockito.doNothing().when(musicianRepository).createMusician(null, null, 1l);
+
+		Volunteer volunteer = this.volunteerService.save(generateVolunteerMusicianDto());
+		assertEquals(1l, volunteer.getId().longValue());
+		assertEquals("Teste", volunteer.getName());
+		assertEquals("mail@mail.com", volunteer.getEmail());
+		assertEquals("Teste", volunteer.getAddress());
+		assertEquals("0123456789", volunteer.getCelNumber());
+		assertEquals("14256895789", volunteer.getCpf());
+		assertEquals("Teste", volunteer.getDistrict());
+		assertEquals("CASADO", volunteer.getMaritalStatus());
+		assertEquals("0123654789", volunteer.getPhoneNumber());
+		assertEquals("SIM", volunteer.getPromise());
+		assertEquals("12547895X", volunteer.getRg());
+		assertEquals("12345678", volunteer.getZipCode());
+		assertEquals(1l, volunteer.getCity().getId().longValue());
+		assertEquals("Teste", volunteer.getCity().getName());
+		assertEquals("SP", volunteer.getCity().getState());
+		assertTrue(volunteer.getCity().getRegional());
+
+		assertEquals(1l, volunteer.getNaturalness().getId().longValue());
+		assertEquals("Teste", volunteer.getNaturalness().getName());
+		assertEquals("SP", volunteer.getNaturalness().getState());
+		assertTrue(volunteer.getNaturalness().getRegional());
+
+		assertEquals(1, volunteer.getMinistryOrPosition().size());
+		assertEquals(1l, volunteer.getMinistryOrPosition().get(0).getId().longValue());
+		assertEquals("Teste", volunteer.getMinistryOrPosition().get(0).getDescription());
+
+		assertEquals("abc123", volunteer.getPrayingHouse().getReportCode());
+		assertEquals("Teste", volunteer.getPrayingHouse().getDistrict());
+		
+		verify(volunteerRepository).save(any());
+		verify(musicianRepository).createMusician(null, null, 1l);
+	}
 
 	@Test(expected = Exception.class)
 	public void updateErrorTest() {
@@ -552,5 +600,14 @@ public class VolunteerServiceImplTest {
 				MaritalStatusEnum.CASADO, LocalDate.now(), null, "SIM", null, null,
 				PrayingHouseServiceImplTest.generatePrayingHouseInnerDTO(),
 				MinistryOrPositionServiceImplTest.generateMinistryOrPositionInnerDTO());
+	}
+	
+	public static VolunteerDTO generateVolunteerMusicianDto() {
+		return new VolunteerDTO(1l, "Teste", "Teste", "Teste", CityServiceImplTest.generateCityInnerDTO(), "12345678",
+				"0123654789", "0123456789", "mail@mail.com", LocalDate.now(),
+				CityServiceImplTest.generateCityInnerDTO(), LocalDate.now(), "14256895789", "12547895X",
+				MaritalStatusEnum.CASADO, LocalDate.now(), null, "SIM", null, null,
+				PrayingHouseServiceImplTest.generatePrayingHouseInnerDTO(),
+				MinistryOrPositionServiceImplTest.generateMinistryOrPositionMusicianInnerDTO());
 	}
 }

@@ -20,7 +20,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +30,7 @@ import br.org.rpf.cagef.dto.ministryorposition.MinistryOrPositionInnerDTO;
 import br.org.rpf.cagef.entity.MinistryOrPosition;
 import br.org.rpf.cagef.repository.MinistryOrPositionRepository;
 import br.org.rpf.cagef.service.MinistryOrPositionService;
+import br.org.rpf.cagef.util.MinistryOrPositionSpecification;
 
 @RunWith(SpringRunner.class)
 public class MinistryOrPositionServiceImplTest {
@@ -53,10 +53,9 @@ public class MinistryOrPositionServiceImplTest {
 	@MockBean
 	private MinistryOrPositionRepository ministryOrPositionRepository;
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void findAllErrorTest() {
-		Mockito.when(ministryOrPositionRepository.findAll(any(Example.class), any(Pageable.class)))
+		Mockito.when(ministryOrPositionRepository.findAll(any(MinistryOrPositionSpecification.class), any(Pageable.class)))
 				.thenThrow(new DataIntegrityViolationException("DataIntegrityViolationException"));
 
 		expectedEx.expect(DataIntegrityViolationException.class);
@@ -65,10 +64,9 @@ public class MinistryOrPositionServiceImplTest {
 		this.ministryOrPositionService.findAll(null, null, null, 0, 24, "id", "ASC");
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void findAllSuccessTest() {
-		Mockito.when(ministryOrPositionRepository.findAll(any(Example.class), any(Pageable.class)))
+		Mockito.when(ministryOrPositionRepository.findAll(any(MinistryOrPositionSpecification.class), any(Pageable.class)))
 				.thenReturn(new PageImpl<MinistryOrPosition>(getMinisteriesOrPositionsList()));
 		Page<MinistryOrPosition> ministeriesOrPositions = this.ministryOrPositionService.findAll(null, null, null, 0, 24,
 				"id", "ASC");
@@ -161,6 +159,11 @@ public class MinistryOrPositionServiceImplTest {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static MinistryOrPositionInnerDTO generateMinistryOrPositionInnerDTO() {
 		return new MinistryOrPositionInnerDTO(new ArrayList(Arrays.asList(1l)));
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static MinistryOrPositionInnerDTO generateMinistryOrPositionMusicianInnerDTO() {
+		return new MinistryOrPositionInnerDTO(new ArrayList(Arrays.asList(32l)));
 	}
 
 	public static List<MinistryOrPosition> getMinisteriesOrPositionsList() {
