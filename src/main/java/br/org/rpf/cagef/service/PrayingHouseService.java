@@ -2,11 +2,12 @@ package br.org.rpf.cagef.service;
 
 import org.springframework.data.domain.Page;
 
+import br.org.rpf.cagef.dto.http.request.city.PrayingHouseRequestParamsDTO;
 import br.org.rpf.cagef.dto.prayinghouse.PrayingHouseDTO;
 import br.org.rpf.cagef.entity.PrayingHouse;
 
 public interface PrayingHouseService {
-	public Page<PrayingHouse> findAll(String reportCode, Long cityId, String cityName, String district, int offset, int limit, String orderBy, String direction);
+	public Page<PrayingHouse> findAll(PrayingHouseRequestParamsDTO requestParams);
 	
 	public PrayingHouse byId(String reportCode);
 

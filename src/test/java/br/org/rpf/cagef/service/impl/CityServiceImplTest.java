@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +19,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -29,20 +30,13 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import br.org.rpf.cagef.dto.city.CityDTO;
 import br.org.rpf.cagef.dto.city.CityInnerDTO;
+import br.org.rpf.cagef.dto.http.request.city.CityRequestParamsDTO;
 import br.org.rpf.cagef.entity.City;
 import br.org.rpf.cagef.repository.CityRepository;
-import br.org.rpf.cagef.service.CityService;
 
 @RunWith(SpringRunner.class)
+@SpringBootTest
 public class CityServiceImplTest {
-
-	@TestConfiguration
-	static class CityServiceImplTestConfiguration {
-		@Bean(name = "cityService")
-		public CityService cityService() {
-			return new CityServiceImpl();
-		}
-	}
 
 	@Rule
 	public ExpectedException expectedEx = ExpectedException.none();
@@ -57,21 +51,21 @@ public class CityServiceImplTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void findAllErrorTest() {
-		Mockito.when(cityRepository.findAll(any(Example.class), any(Pageable.class)))
+		when(cityRepository.findAll(any(Example.class), any(Pageable.class)))
 				.thenThrow(new DataIntegrityViolationException("DataIntegrityViolationException"));
 
 		expectedEx.expect(DataIntegrityViolationException.class);
 		expectedEx.expectMessage("DataIntegrityViolationException");
 
-		this.cityService.findAll(null, null, null, null, 0, 24, "id", "ASC");
+		this.cityService.findAll(CityRequestParamsDTO.builder().offset(0).limit(25).orderBy("id").direction("ASC").build());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void findAllSuccessTest() {
-		Mockito.when(cityRepository.findAll(any(Example.class), any(Pageable.class)))
+		when(cityRepository.findAll(any(Example.class), any(Pageable.class)))
 				.thenReturn(new PageImpl<City>(getCitiesList()));
-		Page<City> cities = this.cityService.findAll(null, null, null, null, 0, 24, "id", "ASC");
+		Page<City> cities = this.cityService.findAll(CityRequestParamsDTO.builder().offset(0).limit(25).orderBy("id").direction("ASC").build());
 		List<City> citiesList = cities.getContent();
 		assertEquals(4, citiesList.size());
 		assertEquals(1l, citiesList.get(0).getId().longValue());
@@ -93,61 +87,71 @@ public class CityServiceImplTest {
 		assertEquals("Poços de Caldas", citiesList.get(3).getName());
 		assertEquals("MG", citiesList.get(3).getState());
 		assertFalse(citiesList.get(3).getRegional());
+		
+		verify(cityRepository).findAll(any(Example.class), any(Pageable.class));
 
 	}
 
 	@Test(expected = ObjectNotFoundException.class)
 	public void findByIdNotFoundTest() {
-		Mockito.when(cityRepository.findById(1l)).thenReturn(Optional.ofNullable(null));
+		when(cityRepository.findById(1l)).thenReturn(Optional.ofNullable(null));
 
-		this.cityService.byId(1l);
+		this.cityService.byId(1l);		
 	}
 
-	@Test()
+	@Test
 	public void findByIdSuccessTest() {
-		Mockito.when(cityRepository.findById(1l)).thenReturn(Optional.of(generateCity()));
+		when(cityRepository.findById(1l)).thenReturn(Optional.of(generateCity()));
 
 		City city = this.cityService.byId(1l);
 		assertEquals(1l, city.getId().longValue());
 		assertEquals("Teste", city.getName());
 		assertEquals("SP", city.getState());
 		assertTrue(city.getRegional());
+		
+		verify(cityRepository).findById(1l);
 	}
 
 	@Test(expected = Exception.class)
 	public void saveErrorTest() {
-		Mockito.when(cityRepository.save(any())).thenThrow(new Exception("Error"));
+		when(cityRepository.save(any())).thenThrow(new Exception("Error"));
 
 		this.cityService.save(generateCityDTO());
 	}
 
-	@Test()
+	@Test
 	public void saveSuccessTest() {
-		Mockito.when(cityRepository.save(any())).thenReturn(generateCity());
+		when(cityRepository.save(any(City.class))).thenReturn(generateCity());
 
 		City city = this.cityService.save(generateCityDTO());
 		assertEquals(1l, city.getId().longValue());
 		assertEquals("Teste", city.getName());
 		assertEquals("SP", city.getState());
 		assertTrue(city.getRegional());
+		
+		verify(cityRepository).save(any(City.class));
 	}
 
 	@Test(expected = Exception.class)
 	public void updateErrorTest() {
-		Mockito.when(cityRepository.save(any())).thenThrow(new Exception("Error"));
+		when(cityRepository.save(any(City.class))).thenThrow(new Exception("Error"));
 
 		this.cityService.save(generateCityDTO());
+		
+		verify(cityRepository).save(any(City.class));
 	}
 
-	@Test()
+	@Test
 	public void updateSuccessTest() {
-		Mockito.when(cityRepository.save(any())).thenReturn(generateCity());
+		when(cityRepository.save(any(City.class))).thenReturn(generateCity());
 
 		City city = this.cityService.update(1l, generateCityDTO());
 		assertEquals(1l, city.getId().longValue());
 		assertEquals("Teste", city.getName());
 		assertEquals("SP", city.getState());
 		assertTrue(city.getRegional());
+		
+		verify(cityRepository).save(any(City.class));
 	}
 
 	@Test(expected = Exception.class)
@@ -157,11 +161,13 @@ public class CityServiceImplTest {
 		this.cityService.save(generateCityDTO());
 	}
 
-	@Test()
+	@Test
 	public void removeSuccessTest() {
 		Mockito.doNothing().when(cityRepository).deleteById(1l);
 
 		this.cityService.remove(1l);
+		
+		verify(cityRepository).deleteById(1l);
 	}
 
 	public static List<City> getCitiesList() {

@@ -4,15 +4,13 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import br.org.rpf.cagef.dto.http.request.city.VolunteerRequestParamsDTO;
 import br.org.rpf.cagef.dto.volunteer.BaseVolunteerDTO;
 import br.org.rpf.cagef.dto.volunteer.ReportVolunteerProjection;
 import br.org.rpf.cagef.dto.volunteer.VolunteerDTO;
 import br.org.rpf.cagef.entity.Volunteer;
-import br.org.rpf.cagef.repository.VolunteerRepository;
 import br.org.rpf.cagef.service.UserService;
 import br.org.rpf.cagef.service.VolunteerService;
 import br.org.rpf.cagef.util.VolunteerSpecification;
@@ -21,22 +19,21 @@ import br.org.rpf.cagef.util.VolunteerSpecification;
 public class VolunteerServiceImpl extends DefaultVolunteerServiceImpl implements VolunteerService {
 
 	@Autowired
-	private VolunteerRepository volunteerRepository;
-
-	@Autowired
 	private UserService userService;
 
-	public Page<Volunteer> findAll(Long id, String name, Long[] cityIds, String cityName,
-			String ministryOrPositionDescription, Long[] ministryOrPositionIds, int offset, int limit, String orderBy,
-			String direction) {
+	public Page<Volunteer> findAll(VolunteerRequestParamsDTO requestParams) {
+		try {
 		if (!this.userService.isAdmin()) {
-			cityIds = new Long[] { UserService.authenticated().getCity().getId() };
+			requestParams.setCityIds(new Long[] { UserService.authenticated().getCity().getId() });
 		}
 
 		return volunteerRepository.findAll(
-				new VolunteerSpecification(id, name, cityIds, cityName, ministryOrPositionDescription,
-						ministryOrPositionIds, null),
-				PageRequest.of(offset, limit, Direction.fromString(direction), orderBy));
+				new VolunteerSpecification(requestParams),
+				requestParams.getPageRequest());
+		} catch(Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	@Override
@@ -44,7 +41,7 @@ public class VolunteerServiceImpl extends DefaultVolunteerServiceImpl implements
 		Volunteer v = volunteerRepository.save(fromDTO((VolunteerDTO) volunteerDTO));
 		if(hasMusicMinistery(volunteerDTO)) {
 			this.musicianRepository.createMusician(null, null, v.getId());
-		};
+		}
 		return v;
 	}
 

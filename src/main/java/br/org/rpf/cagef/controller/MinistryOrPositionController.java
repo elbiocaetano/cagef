@@ -7,7 +7,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -27,7 +31,7 @@ public class MinistryOrPositionController {
 	private MinistryOrPositionService ministryOrPositionService;
 
 	@CrossOrigin(origins = "*", methods={RequestMethod.GET, RequestMethod.OPTIONS})
-	@RequestMapping(method=RequestMethod.GET)
+	@GetMapping
 	public ResponseEntity<Page<MinistryOrPosition>> buscar(
 			@RequestParam(value="id", required=false) Long id,
 			@RequestParam(value="id.in", required=false) Long[] idIn,
@@ -40,13 +44,13 @@ public class MinistryOrPositionController {
 	}
 	
 	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.OPTIONS })
-	@RequestMapping(value="/{id}", method = RequestMethod.GET)
+	@GetMapping(value="/{id}")
 	public ResponseEntity<MinistryOrPosition> byId(@PathVariable Long id){
 		return ResponseEntity.ok(this.ministryOrPositionService.byId(id));
 	}
 	
 	@CrossOrigin(origins = "*", methods = { RequestMethod.POST, RequestMethod.OPTIONS })
-	@RequestMapping(method = RequestMethod.POST)
+	@PostMapping
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	public ResponseEntity<Void> save(@RequestBody MinistryOrPositionDTO ministryOrPositionDTO) {
 		MinistryOrPosition ministryOrPosition = this.ministryOrPositionService.save(ministryOrPositionDTO);
@@ -56,7 +60,7 @@ public class MinistryOrPositionController {
 	}
 	
 	@CrossOrigin(origins = "*", methods = { RequestMethod.PUT, RequestMethod.OPTIONS })
-	@RequestMapping(value="/{id}", method = RequestMethod.PUT)
+	@PutMapping(value="/{id}")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	public ResponseEntity<Void> update(@PathVariable Long id, @RequestBody MinistryOrPositionDTO ministryOrPositionDTO) {
 		this.ministryOrPositionService.update(id, ministryOrPositionDTO);
@@ -65,7 +69,7 @@ public class MinistryOrPositionController {
 	}
 	
 	@CrossOrigin(origins = "*", methods={RequestMethod.DELETE, RequestMethod.OPTIONS})
-	@RequestMapping(value="/{id}", method=RequestMethod.DELETE)
+	@DeleteMapping(value="/{id}")
 	@PreAuthorize("hasAnyRole('ADMIN')")
 	public ResponseEntity<Void> remove(@PathVariable Long id){
 		this.ministryOrPositionService.remove(id);

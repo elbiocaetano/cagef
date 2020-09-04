@@ -5,10 +5,9 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatcher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import br.org.rpf.cagef.dto.http.request.city.PrayingHouseRequestParamsDTO;
 import br.org.rpf.cagef.dto.prayinghouse.PrayingHouseDTO;
 import br.org.rpf.cagef.entity.City;
 import br.org.rpf.cagef.entity.PrayingHouse;
@@ -29,16 +28,16 @@ public class PrayingHouseServiceImpl implements PrayingHouseService {
 	@Autowired
 	private UserService userService;
 
-	public Page<PrayingHouse> findAll(String reportCode, Long cityId, String cityName, String district, int offset, int limit, String orderBy,
-			String direction) {
-		PrayingHouse prayingHouse = new PrayingHouse(reportCode, district, new City(cityId, cityName));
-		if(!this.userService.isAdmin()) {
+	public Page<PrayingHouse> findAll(PrayingHouseRequestParamsDTO requestParams) {
+		PrayingHouse prayingHouse = new PrayingHouse(requestParams.getReportCode(), requestParams.getDistrict(),
+				new City(requestParams.getCityId(), requestParams.getCityName()));
+		if(!this.userService.isAnyAdmin()) {
 			prayingHouse.setCity(UserService.authenticated().getCity());
 		}
 
 		return prayingHouseRepository.findAll(
 				Example.of(prayingHouse, getExampleMatcher()),
-				PageRequest.of(offset, limit, Direction.fromString(direction), orderBy));
+				requestParams.getPageRequest());
 	}
 	
 	@Override

@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import br.org.rpf.cagef.dto.http.request.city.InstrumentRequestParamsDTO;
 import br.org.rpf.cagef.dto.instrument.InstrumentDTO;
 import br.org.rpf.cagef.entity.Instrument;
 import br.org.rpf.cagef.entity.InstrumentCategory;
@@ -27,11 +28,10 @@ public class InstrumentServiceImpl implements InstrumentService {
 	@Autowired
 	private InstrumentCategoryRepository instrumentCategoryRepository;
 
-	public Page<Instrument> findAll(Long id, String description, Long[] categoryIds, String categoryName, int offset,
-			int limit, String orderBy, String direction) {
+	public Page<Instrument> findAll(InstrumentRequestParamsDTO requestParams) {
 
-		return instrumentRepository.findAll(new InstrumentSpecification(id, description, categoryIds, categoryName),
-				PageRequest.of(offset, limit, Direction.fromString(direction), orderBy));
+		return instrumentRepository.findAll(new InstrumentSpecification(requestParams.getId(), requestParams.getDescription(), requestParams.getCategoryIds(), requestParams.getCategoryName()),
+				requestParams.getPageRequest());
 	}
 
 	public Instrument byId(Long id) {
@@ -46,9 +46,9 @@ public class InstrumentServiceImpl implements InstrumentService {
 
 	@Override
 	public Instrument update(Long id, InstrumentDTO instrumentDTO) {
-		this.instrumentRepository.findById(id)
+		Instrument instrument = this.instrumentRepository.findById(id)
 				.orElseThrow(() -> new org.hibernate.ObjectNotFoundException(id, Instrument.class.getName()));
-		return instrumentRepository.save(fromDTO(id, instrumentDTO));
+		return instrumentRepository.save(fromDTO(instrument.getId(), instrumentDTO));
 	}
 
 	@Override

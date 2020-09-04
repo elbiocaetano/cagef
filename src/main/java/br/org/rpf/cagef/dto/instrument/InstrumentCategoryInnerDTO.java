@@ -5,28 +5,21 @@ import java.io.Serializable;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-public class InstrumentCategoryInnerDTO implements Serializable{
-	
-	private static final long serialVersionUID = -5635268674032590299L;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-	public InstrumentCategoryInnerDTO() {
-		super();
-	}
-	
-	public InstrumentCategoryInnerDTO(Long id) {
-		super();
-		this.id = id;
-	}
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode
+public class InstrumentCategoryInnerDTO implements Serializable {
+	private static final long serialVersionUID = -5635268674032590299L;
 
 	@NotNull
 	@Min(1)
 	private Long id;
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
 }

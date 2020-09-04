@@ -5,11 +5,10 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatcher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
 import br.org.rpf.cagef.dto.city.CityDTO;
+import br.org.rpf.cagef.dto.http.request.city.CityRequestParamsDTO;
 import br.org.rpf.cagef.entity.City;
 import br.org.rpf.cagef.repository.CityRepository;
 import br.org.rpf.cagef.service.CityService;
@@ -21,12 +20,10 @@ public class CityServiceImpl implements CityService {
 	private CityRepository cityRepository;
 
 	@Override
-	public Page<City> findAll(Long id, String name, String state, Boolean regional, int offset, int limit, String orderBy,
-			String direction) {
-
-		return cityRepository.findAll(
-				Example.of(new City(id, name, state, regional), getExampleMatcher()),
-				PageRequest.of(offset, limit, Direction.fromString(direction), orderBy));
+	public Page<City> findAll(CityRequestParamsDTO requestParams) {
+		return cityRepository.findAll(Example.of(new City(requestParams.getId(), requestParams.getName(),
+				requestParams.getState(), requestParams.getRegional()), getExampleMatcher()),
+				requestParams.getPageRequest());
 	}
 	
 	@Override

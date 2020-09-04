@@ -17,7 +17,7 @@ public class ResourceExceptionHandler {
 	@ExceptionHandler(ObjectNotFoundException.class)
 	public ResponseEntity<StandardError> objectNotFound(ObjectNotFoundException e, HttpServletRequest request) {
 		
-		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.NOT_FOUND.value(), "Registro com id " + e.getIdentifier() +  "não encontrado(a)", e.getMessage(), request.getRequestURI());
+		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.NOT_FOUND.value(), "Registro com id " + e.getIdentifier() +  " não encontrado(a)", e.getMessage(), request.getRequestURI());
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(err);
 	}
 
@@ -32,7 +32,7 @@ public class ResourceExceptionHandler {
 	public ResponseEntity<StandardError> validation(MethodArgumentNotValidException e, HttpServletRequest request) {
 		String errors = "";
 		for (FieldError x : e.getBindingResult().getFieldErrors()) {
-			errors += x.getField() + ": " + x.getDefaultMessage() + " ";
+			errors = errors.concat(String.format("%s: %s ", x.getField(), x.getDefaultMessage()));
 		}
 		StandardError err = new StandardError(System.currentTimeMillis(), HttpStatus.UNPROCESSABLE_ENTITY.value(), "Erro de validação: " + errors, e.getMessage(), request.getRequestURI());
 				

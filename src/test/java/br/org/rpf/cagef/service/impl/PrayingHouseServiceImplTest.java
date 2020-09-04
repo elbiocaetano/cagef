@@ -3,6 +3,8 @@ package br.org.rpf.cagef.service.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +19,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -31,24 +32,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import br.org.rpf.cagef.dto.http.request.city.PrayingHouseRequestParamsDTO;
 import br.org.rpf.cagef.dto.prayinghouse.PrayingHouseDTO;
 import br.org.rpf.cagef.dto.prayinghouse.PrayingHouseInnerDTO;
 import br.org.rpf.cagef.entity.PrayingHouse;
 import br.org.rpf.cagef.repository.CityRepository;
 import br.org.rpf.cagef.repository.PrayingHouseRepository;
-import br.org.rpf.cagef.service.PrayingHouseService;
 import br.org.rpf.cagef.service.UserService;
 
 @RunWith(SpringRunner.class)
+@SpringBootTest
 public class PrayingHouseServiceImplTest {
-
-	@TestConfiguration
-	static class PrayingHouseServiceImplTestConfiguration {
-		@Bean(name = "prayinghouseService")
-		public PrayingHouseService prayinghouseService() {
-			return new PrayingHouseServiceImpl();
-		}
-	}
 
 	@Rule
 	public ExpectedException expectedEx = ExpectedException.none();
@@ -70,33 +64,33 @@ public class PrayingHouseServiceImplTest {
 	public void setup() {
 		Authentication authentication = Mockito.mock(Authentication.class);
 		SecurityContext securityContext = Mockito.mock(SecurityContext.class);
-		Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+		when(securityContext.getAuthentication()).thenReturn(authentication);
 		SecurityContextHolder.setContext(securityContext);
-		Mockito.when(SecurityContextHolder.getContext().getAuthentication().getPrincipal())
+		when(SecurityContextHolder.getContext().getAuthentication().getPrincipal())
 				.thenReturn(UserServiceImplTest.generateUserNotAdmin());
 
-		Mockito.when(userService.isAdmin()).thenReturn(true);
-		Mockito.when(cityRepository.findById(any())).thenReturn(Optional.of(CityServiceImplTest.generateCity()));
+		when(userService.isAdmin()).thenReturn(true);
+		when(cityRepository.findById(any())).thenReturn(Optional.of(CityServiceImplTest.generateCity()));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void findAllErrorTest() {
-		Mockito.when(prayinghouseRepository.findAll(any(Example.class), any(Pageable.class)))
+		when(prayinghouseRepository.findAll(any(Example.class), any(Pageable.class)))
 				.thenThrow(new DataIntegrityViolationException("DataIntegrityViolationException"));
 
 		expectedEx.expect(DataIntegrityViolationException.class);
 		expectedEx.expectMessage("DataIntegrityViolationException");
 
-		this.prayinghouseService.findAll(null, null, null, null, 0, 24, "id", "ASC");
+		this.prayinghouseService.findAll(PrayingHouseRequestParamsDTO.builder().offset(0).limit(25).orderBy("reportCode").direction("ASC").build());		
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void findAllAdminSuccessTest() {
-		Mockito.when(prayinghouseRepository.findAll(any(Example.class), any(Pageable.class)))
+		when(prayinghouseRepository.findAll(any(Example.class), any(Pageable.class)))
 				.thenReturn(new PageImpl<PrayingHouse>(getPrayingHousesList()));
-		Page<PrayingHouse> prayingHouses = this.prayinghouseService.findAll(null, null, null, null, 0, 24, "id", "ASC");
+		Page<PrayingHouse> prayingHouses = this.prayinghouseService.findAll(PrayingHouseRequestParamsDTO.builder().offset(0).limit(25).orderBy("reportCode").direction("ASC").build());
 		List<PrayingHouse> prayingHousesList = prayingHouses.getContent();
 		assertEquals(4, prayingHousesList.size());
 		assertEquals("abc1234", prayingHousesList.get(0).getReportCode());
@@ -126,16 +120,18 @@ public class PrayingHouseServiceImplTest {
 		assertEquals("Teste", prayingHousesList.get(3).getCity().getName());
 		assertEquals("SP", prayingHousesList.get(3).getCity().getState());
 		assertTrue(prayingHousesList.get(3).getCity().getRegional());
+		
+		verify(prayinghouseRepository).findAll(any(Example.class), any(Pageable.class));
 
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void findAllNotAdminSuccessTest() {
-		Mockito.when(userService.isAdmin()).thenReturn(false);
-		Mockito.when(prayinghouseRepository.findAll(any(Example.class), any(Pageable.class)))
+		when(userService.isAdmin()).thenReturn(false);
+		when(prayinghouseRepository.findAll(any(Example.class), any(Pageable.class)))
 				.thenReturn(new PageImpl<PrayingHouse>(getPrayingHousesList()));
-		Page<PrayingHouse> prayingHouses = this.prayinghouseService.findAll(null, null, null, null, 0, 24, "id", "ASC");
+		Page<PrayingHouse> prayingHouses = this.prayinghouseService.findAll(PrayingHouseRequestParamsDTO.builder().offset(0).limit(25).orderBy("reportCode").direction("ASC").build());
 		List<PrayingHouse> prayingHousesList = prayingHouses.getContent();
 		assertEquals(4, prayingHousesList.size());
 		assertEquals("abc1234", prayingHousesList.get(0).getReportCode());
@@ -165,20 +161,21 @@ public class PrayingHouseServiceImplTest {
 		assertEquals("Teste", prayingHousesList.get(3).getCity().getName());
 		assertEquals("SP", prayingHousesList.get(3).getCity().getState());
 		assertTrue(prayingHousesList.get(3).getCity().getRegional());
+		
+		verify(prayinghouseRepository).findAll(any(Example.class), any(Pageable.class));
 	}
 
 	@Test(expected = ObjectNotFoundException.class)
 	public void findByIdNotFoundTest() {
-		Mockito.when(prayinghouseRepository.findById("abc123")).thenReturn(Optional.ofNullable(null));
+		when(prayinghouseRepository.findById("abc123")).thenReturn(Optional.ofNullable(null));
 
 		this.prayinghouseService.byId("abc123");
 	}
 
-	@Test()
+	@Test
 	@WithMockUser()
 	public void findByIdAdminSuccessTest() {
-		Mockito.when(cityRepository.findById(1l)).thenReturn(Optional.of(CityServiceImplTest.generateCity()));
-		Mockito.when(prayinghouseRepository.findById("abc123")).thenReturn(Optional.of(generatePrayingHouse()));
+		when(prayinghouseRepository.findById("abc123")).thenReturn(Optional.of(generatePrayingHouse()));
 
 		PrayingHouse prayinghouse = this.prayinghouseService.byId("abc123");
 		assertEquals("abc123", prayinghouse.getReportCode());
@@ -187,13 +184,13 @@ public class PrayingHouseServiceImplTest {
 		assertEquals("Teste", prayinghouse.getCity().getName());
 		assertEquals("SP", prayinghouse.getCity().getState());
 		assertTrue(prayinghouse.getCity().getRegional());
+		
+		verify(prayinghouseRepository).findById("abc123");
 	}
 
-	@Test()
+	@Test
 	public void findByIdNotAdminSuccessTest() {
-		Mockito.when(userService.isAdmin()).thenReturn(false);
-		Mockito.when(cityRepository.findById(1l)).thenReturn(Optional.of(CityServiceImplTest.generateCity()));
-		Mockito.when(prayinghouseRepository.findById("abc123")).thenReturn(Optional.of(generatePrayingHouse()));
+		when(prayinghouseRepository.findById("abc123")).thenReturn(Optional.of(generatePrayingHouse()));
 
 		PrayingHouse prayinghouse = this.prayinghouseService.byId("abc123");
 		assertEquals("abc123", prayinghouse.getReportCode());
@@ -202,18 +199,20 @@ public class PrayingHouseServiceImplTest {
 		assertEquals("Teste", prayinghouse.getCity().getName());
 		assertEquals("SP", prayinghouse.getCity().getState());
 		assertTrue(prayinghouse.getCity().getRegional());
+		
+		verify(prayinghouseRepository).findById("abc123");
 	}
 
 	@Test(expected = Exception.class)
 	public void saveErrorTest() {
-		Mockito.when(prayinghouseRepository.save(any())).thenThrow(new Exception("Error"));
+		when(prayinghouseRepository.save(any())).thenThrow(new Exception("Error"));
 
 		this.prayinghouseService.save(generatePrayingHouseDTO());
 	}
 
-	@Test()
+	@Test
 	public void saveAdminSuccessTest() {
-		Mockito.when(prayinghouseRepository.save(any())).thenReturn(generatePrayingHouse());
+		when(prayinghouseRepository.save(any(PrayingHouse.class))).thenReturn(generatePrayingHouse());
 
 		PrayingHouse prayinghouse = this.prayinghouseService.save(generatePrayingHouseDTO());
 		assertEquals("abc123", prayinghouse.getReportCode());
@@ -222,12 +221,14 @@ public class PrayingHouseServiceImplTest {
 		assertEquals("Teste", prayinghouse.getCity().getName());
 		assertEquals("SP", prayinghouse.getCity().getState());
 		assertTrue(prayinghouse.getCity().getRegional());
+		
+		verify(prayinghouseRepository).save(any(PrayingHouse.class));
 	}
 
-	@Test()
+	@Test
 	public void saveNotAdminSuccessTest() {
-		Mockito.when(userService.isAdmin()).thenReturn(false);
-		Mockito.when(prayinghouseRepository.save(any())).thenReturn(generatePrayingHouse());
+		when(userService.isAdmin()).thenReturn(false);
+		when(prayinghouseRepository.save(any(PrayingHouse.class))).thenReturn(generatePrayingHouse());
 
 		PrayingHouse prayinghouse = this.prayinghouseService.save(generatePrayingHouseDTO());
 		assertEquals("abc123", prayinghouse.getReportCode());
@@ -236,13 +237,16 @@ public class PrayingHouseServiceImplTest {
 		assertEquals("Teste", prayinghouse.getCity().getName());
 		assertEquals("SP", prayinghouse.getCity().getState());
 		assertTrue(prayinghouse.getCity().getRegional());
+		
+		verify(userService).isAdmin();
+		verify(prayinghouseRepository).save(any(PrayingHouse.class));
 	}
 
 	@Test(expected = ObjectNotFoundException.class)
 	public void saveAdminCityNotFoundTest() {
-		Mockito.when(userService.isAdmin()).thenReturn(false);
-		Mockito.when(cityRepository.findById(any())).thenReturn(Optional.ofNullable(null));
-		Mockito.when(prayinghouseRepository.save(any())).thenReturn(generatePrayingHouse());
+		when(userService.isAdmin()).thenReturn(false);
+		when(cityRepository.findById(any())).thenReturn(Optional.ofNullable(null));
+		when(prayinghouseRepository.save(any())).thenReturn(generatePrayingHouse());
 
 		PrayingHouse prayinghouse = this.prayinghouseService.save(generatePrayingHouseDTO());
 		assertEquals("abc123", prayinghouse.getReportCode());
@@ -255,8 +259,8 @@ public class PrayingHouseServiceImplTest {
 
 	@Test(expected = ObjectNotFoundException.class)
 	public void saveNotAdminCityNotFoundTest() {
-		Mockito.when(cityRepository.findById(any())).thenReturn(Optional.ofNullable(null));
-		Mockito.when(prayinghouseRepository.save(any())).thenReturn(generatePrayingHouse());
+		when(cityRepository.findById(any())).thenReturn(Optional.ofNullable(null));
+		when(prayinghouseRepository.save(any())).thenReturn(generatePrayingHouse());
 
 		PrayingHouse prayinghouse = this.prayinghouseService.save(generatePrayingHouseDTO());
 		assertEquals("abc123", prayinghouse.getReportCode());
@@ -269,14 +273,14 @@ public class PrayingHouseServiceImplTest {
 
 	@Test(expected = Exception.class)
 	public void updateErrorTest() {
-		Mockito.when(prayinghouseRepository.save(any())).thenThrow(new Exception("Error"));
+		when(prayinghouseRepository.save(any())).thenThrow(new Exception("Error"));
 
 		this.prayinghouseService.save(generatePrayingHouseDTO());
 	}
 
-	@Test()
+	@Test
 	public void updateAdminSuccessTest() {
-		Mockito.when(prayinghouseRepository.save(any())).thenReturn(generatePrayingHouse());
+		when(prayinghouseRepository.save(any(PrayingHouse.class))).thenReturn(generatePrayingHouse());
 
 		PrayingHouse prayinghouse = this.prayinghouseService.update("abc123", generatePrayingHouseDTO());
 		assertEquals("abc123", prayinghouse.getReportCode());
@@ -285,12 +289,15 @@ public class PrayingHouseServiceImplTest {
 		assertEquals("Teste", prayinghouse.getCity().getName());
 		assertEquals("SP", prayinghouse.getCity().getState());
 		assertTrue(prayinghouse.getCity().getRegional());
+		
+		verify(userService).isAdmin();
+		verify(prayinghouseRepository).save(any(PrayingHouse.class));
 	}
 
-	@Test()
+	@Test
 	public void updateNotAdminSuccessTest() {
-		Mockito.when(prayinghouseRepository.save(any())).thenReturn(generatePrayingHouse());
-		Mockito.when(userService.isAdmin()).thenReturn(false);
+		when(prayinghouseRepository.save(any())).thenReturn(generatePrayingHouse());
+		when(userService.isAdmin()).thenReturn(false);
 
 		PrayingHouse prayinghouse = this.prayinghouseService.update("abc123", generatePrayingHouseDTO());
 		assertEquals("abc123", prayinghouse.getReportCode());
@@ -299,6 +306,9 @@ public class PrayingHouseServiceImplTest {
 		assertEquals("Teste", prayinghouse.getCity().getName());
 		assertEquals("SP", prayinghouse.getCity().getState());
 		assertTrue(prayinghouse.getCity().getRegional());
+		
+		verify(userService).isAdmin();
+		verify(prayinghouseRepository).save(any(PrayingHouse.class));
 	}
 
 	@Test(expected = Exception.class)
@@ -308,14 +318,16 @@ public class PrayingHouseServiceImplTest {
 		this.prayinghouseService.save(generatePrayingHouseDTO());
 	}
 
-	@Test()
+	@Test
 	public void removeSuccessTest() {
 		Mockito.doNothing().when(prayinghouseRepository).deleteById("abc123");
 
 		this.prayinghouseService.remove("abc123");
+		
+		verify(prayinghouseRepository).deleteById("abc123");
 	}
 
-	private List<PrayingHouse> getPrayingHousesList() {
+	public static List<PrayingHouse> getPrayingHousesList() {
 		List<PrayingHouse> list = new ArrayList<>();
 
 		list.add(new PrayingHouse("abc1234", "Teste 1", CityServiceImplTest.generateCity()));

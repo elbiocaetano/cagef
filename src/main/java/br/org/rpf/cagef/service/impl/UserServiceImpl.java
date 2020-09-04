@@ -5,13 +5,11 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.ExampleMatcher.GenericPropertyMatcher;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import br.org.rpf.cagef.dto.http.request.city.UserRequestParamsDTO;
 import br.org.rpf.cagef.dto.user.UserDTO;
 import br.org.rpf.cagef.entity.City;
 import br.org.rpf.cagef.entity.User;
@@ -32,17 +30,17 @@ public class UserServiceImpl implements UserService {
 	private BCryptPasswordEncoder passwordEncoder;
 
 	@Override
-	public User loadUserByUsername(String username) throws UsernameNotFoundException {
+	public User loadUserByUsername(String username) {
 		return this.userRepository.findOne(Example.of(new User(username)))
 				.orElseThrow(() -> new org.hibernate.ObjectNotFoundException(username, User.class.getName()));
 	}
 
 	@Override
-	public Page<User> findAll(Long id, String name, String email, String city, String role, int offset, int limit,
-			String orderBy, String direction) {
+	public Page<User> findAll(UserRequestParamsDTO requestParams) {
 
-		return userRepository.findAll(Example.of(new User(id, name, new City(null, city), email, role), getExampleMatcher()),
-				PageRequest.of(offset, limit, Direction.fromString(direction), orderBy));
+		return userRepository.findAll(Example.of(new User(requestParams.getId(), requestParams.getName(),
+				new City(null, requestParams.getCity()), requestParams.getEmail(), requestParams.getRole()),
+				getExampleMatcher()), requestParams.getPageRequest());
 	}
 
 	@Override

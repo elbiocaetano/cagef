@@ -9,6 +9,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -22,6 +24,8 @@ import br.org.rpf.cagef.dto.CredenciaisDTO;
 import br.org.rpf.cagef.entity.User;
 
 public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(JWTAuthenticationFilter.class);
 
 	private AuthenticationManager authenticationManager;
     
@@ -34,20 +38,18 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 	
 	@Override
-    public Authentication attemptAuthentication(HttpServletRequest req,
-                                                HttpServletResponse res) throws AuthenticationException {
+	public Authentication attemptAuthentication(HttpServletRequest req, HttpServletResponse res) {
 
 		try {
-			CredenciaisDTO creds = new ObjectMapper()
-	                .readValue(req.getInputStream(), CredenciaisDTO.class);
-	
-	        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(creds.getUsername(), creds.getPassword(), new ArrayList<>());
-	        
-	        Authentication auth = authenticationManager.authenticate(authToken);
-	        return auth;
-		}
-		catch (IOException e) {
-			throw new RuntimeException(e);
+			CredenciaisDTO creds = new ObjectMapper().readValue(req.getInputStream(), CredenciaisDTO.class);
+
+			UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(creds.getUsername(),
+					creds.getPassword(), new ArrayList<>());
+
+			return authenticationManager.authenticate(authToken);
+		} catch (IOException e) {
+			LOGGER.error("An error ocurred while trying to read credentials", e);
+			return null;
 		}
 	}
 	

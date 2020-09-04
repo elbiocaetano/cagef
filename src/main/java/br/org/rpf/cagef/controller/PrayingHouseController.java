@@ -2,13 +2,16 @@ package br.org.rpf.cagef.controller;
 
 import java.net.URI;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import br.org.rpf.cagef.dto.http.request.city.PrayingHouseRequestParamsDTO;
 import br.org.rpf.cagef.dto.prayinghouse.PrayingHouseDTO;
 import br.org.rpf.cagef.entity.PrayingHouse;
 import br.org.rpf.cagef.service.PrayingHouseService;
@@ -28,7 +32,7 @@ public class PrayingHouseController {
 	private PrayingHouseService prayingHouseService;
 
 	@CrossOrigin(origins = "*", methods={RequestMethod.GET, RequestMethod.OPTIONS})
-	@RequestMapping(method=RequestMethod.GET)
+	@GetMapping
 	public ResponseEntity<Page<PrayingHouse>> findAll(
 			@RequestParam(value="reportCode", required=false) String reportCode,
 			@RequestParam(value="city.id", required=false) Long cityId,
@@ -38,17 +42,20 @@ public class PrayingHouseController {
 			@RequestParam(value="limit", defaultValue="10") Integer limit, 
 			@RequestParam(value="orderBy", defaultValue="reportCode") String orderBy, 
 			@RequestParam(value="direction", defaultValue="ASC") String direction) {
-		return ResponseEntity.ok(this.prayingHouseService.findAll(reportCode, cityId, cityName, district, offset, limit, orderBy, direction));
+		
+		return ResponseEntity.ok(this.prayingHouseService
+				.findAll(PrayingHouseRequestParamsDTO.builder().reportCode(reportCode).cityId(cityId).cityName(cityName)
+						.district(district).offset(offset).limit(limit).orderBy(orderBy).direction(direction).build()));
 	}
 	
 	@CrossOrigin(origins = "*", methods = { RequestMethod.GET, RequestMethod.OPTIONS })
-	@RequestMapping(value="/{reportCode}", method = RequestMethod.GET)
+	@GetMapping(value="/{reportCode}")
 	public ResponseEntity<PrayingHouse> byId(@PathVariable String reportCode){
 		return ResponseEntity.ok(this.prayingHouseService.byId(reportCode));
 	}
 	
 	@CrossOrigin(origins = "*", methods={RequestMethod.POST, RequestMethod.OPTIONS})
-	@RequestMapping(method=RequestMethod.POST)
+	@PostMapping
 	public ResponseEntity<PrayingHouse> save(@RequestBody PrayingHouseDTO prayingHouseDTO){
 		PrayingHouse prayingHouse = this.prayingHouseService.save(prayingHouseDTO);
 		
@@ -57,14 +64,14 @@ public class PrayingHouseController {
 	}
 	
 	@CrossOrigin(origins = "*", methods={RequestMethod.PUT, RequestMethod.OPTIONS})
-	@RequestMapping(value="/{reportCode}", method=RequestMethod.PUT)
-	public ResponseEntity<PrayingHouse> update(@PathVariable String reportCode, @Valid @RequestBody PrayingHouseDTO prayingHouseDTO){
+	@PutMapping(value="/{reportCode}")
+	public ResponseEntity<PrayingHouse> update(@PathVariable String reportCode, @Validated @RequestBody PrayingHouseDTO prayingHouseDTO){
 		this.prayingHouseService.update(reportCode, prayingHouseDTO);
 		return ResponseEntity.noContent().build();
 	}
 	
 	@CrossOrigin(origins = "*", methods={RequestMethod.DELETE, RequestMethod.OPTIONS})
-	@RequestMapping(value="/{reportCode}", method=RequestMethod.DELETE)
+	@DeleteMapping(value="/{reportCode}")
 	public ResponseEntity<Void> remove(@PathVariable String reportCode){
 		this.prayingHouseService.remove(reportCode);
 		return ResponseEntity.noContent().build();
