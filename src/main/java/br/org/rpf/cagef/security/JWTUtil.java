@@ -3,6 +3,7 @@ package br.org.rpf.cagef.security;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import br.org.rpf.cagef.entity.User;
@@ -22,7 +23,7 @@ public class JWTUtil {
 	public String generateToken(User user) {
 		return Jwts.builder()
 				.setSubject(user.getUsername())
-				.claim("ROLE", user.getAuthorities().stream().findFirst().get().getAuthority())
+				.claim("ROLE", user.getAuthorities().stream().findFirst().map(SimpleGrantedAuthority::getAuthority).orElse(null))
 				.claim("city", user.getCity().getId())
 				.setExpiration(new Date(System.currentTimeMillis() + expiration))
 				.signWith(SignatureAlgorithm.HS512, secret.getBytes())

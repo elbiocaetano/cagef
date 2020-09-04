@@ -4,12 +4,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
+import br.org.rpf.cagef.dto.http.request.city.UserRequestParamsDTO;
 import br.org.rpf.cagef.dto.user.UserDTO;
 import br.org.rpf.cagef.entity.User;
 
 public interface UserService extends UserDetailsService{
-	public Page<User> findAll(Long id, String name, String email, String city, String role, int offset, int limit, String orderBy,
-			String direction);
+	public Page<User> findAll(UserRequestParamsDTO requestParams);
 	
 	public User byId(Long id);
 	
@@ -29,10 +29,12 @@ public interface UserService extends UserDetailsService{
 	}
 	
 	public default boolean isAdmin() {
-		return authenticated().getAuthorities().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getAuthority()));
+		User authenticated = authenticated();
+		return authenticated != null && authenticated.getAuthorities().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getAuthority()));
 	}
 	
 	public default boolean isAnyAdmin() {
-		return authenticated().getAuthorities().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getAuthority()) || "ROLE_ADMIN_MUSICA".equals(role.getAuthority()));
+		User authenticated = authenticated();
+		return authenticated != null && authenticated.getAuthorities().stream().anyMatch(role -> "ROLE_ADMIN".equals(role.getAuthority()) || "ROLE_ADMIN_MUSICA".equals(role.getAuthority()));
 	}
 }

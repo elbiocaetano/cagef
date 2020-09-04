@@ -5,6 +5,17 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class InstrumentDTO {
 
 	@NotNull
@@ -14,20 +25,4 @@ public class InstrumentDTO {
 	@Valid
 	@NotNull
 	private InstrumentCategoryInnerDTO category;
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public InstrumentCategoryInnerDTO getCategory() {
-		return category;
-	}
-
-	public void setCategory(InstrumentCategoryInnerDTO category) {
-		this.category = category;
-	}
 }

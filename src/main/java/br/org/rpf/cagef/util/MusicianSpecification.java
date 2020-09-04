@@ -12,6 +12,7 @@ import javax.persistence.criteria.Root;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.ObjectUtils;
 
+import br.org.rpf.cagef.dto.http.request.city.MusicianRequestParamsDTO;
 import br.org.rpf.cagef.entity.Musician;
 
 public class MusicianSpecification implements Specification<Musician> {
@@ -27,25 +28,25 @@ public class MusicianSpecification implements Specification<Musician> {
 	private Long[] ministryOrPositionIds = VALID_IDS;
 	private String instrumentDescription;
 	private Long[] instrumentIds;
+	private String prayingHouseDistrict;
 
-	public MusicianSpecification(Long id, String name, Long[] cityIds, String cityName,
-			String ministryOrPositionDescription, Long[] ministryOrPositionIds, String instrumentDescription,
-			Long[] instrumentIds) {
+	public MusicianSpecification(MusicianRequestParamsDTO requestParams) {
 		super();
-		this.id = id;
-		this.name = name;
-		this.cityIds = cityIds;
-		this.cityName = cityName;
-		this.ministryOrPositionDescription = ministryOrPositionDescription;
-		if (!ObjectUtils.isEmpty(ministryOrPositionIds)) {
-			Long[] ids = (Long[]) List.of(ministryOrPositionIds).stream().filter(m -> List.of(VALID_IDS).contains(m))
+		this.id = requestParams.getId();
+		this.name = requestParams.getName();
+		this.cityIds = requestParams.getCityIds();
+		this.cityName = requestParams.getCityName();
+		this.ministryOrPositionDescription = requestParams.getMinistryOrPositionDescription();
+		if (!ObjectUtils.isEmpty(requestParams.getMinistryOrPositionIds())) {
+			Long[] ids = (Long[]) List.of(requestParams.getMinistryOrPositionIds()).stream().filter(m -> List.of(VALID_IDS).contains(m))
 					.distinct().toArray();
 			if (!ObjectUtils.isEmpty(ids)) {
 				this.ministryOrPositionIds = ids;
 			}
 		}
-		this.instrumentDescription = instrumentDescription;
-		this.instrumentIds = instrumentIds;
+		this.instrumentDescription = requestParams.getInstrumentDescription();
+		this.instrumentIds = requestParams.getInstrumentIds();
+		this.prayingHouseDistrict = requestParams.getPrayingHouseDistrict();
 	}
 
 	@Override
@@ -81,6 +82,10 @@ public class MusicianSpecification implements Specification<Musician> {
 		}
 		if (!ObjectUtils.isEmpty(instrumentIds)) {
 			predicates.add(root.join("instrument", JoinType.INNER).get("id").in((Object[]) this.instrumentIds));
+		}
+		if(prayingHouseDistrict != null) {
+			predicates.add(criteriaBuilder.like(root.join("prayingHouse", JoinType.INNER).get("district"),
+					"%" + this.prayingHouseDistrict + "%"));
 		}
 
 		return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));

@@ -11,6 +11,7 @@ import javax.persistence.criteria.Root;
 
 import org.springframework.data.jpa.domain.Specification;
 
+import br.org.rpf.cagef.dto.http.request.city.VolunteerRequestParamsDTO;
 import br.org.rpf.cagef.entity.Volunteer;
 
 public class VolunteerSpecification implements Specification<Volunteer> {
@@ -22,25 +23,26 @@ public class VolunteerSpecification implements Specification<Volunteer> {
 	private String cityName;
 	private String ministryOrPositionDescription;
 	private Long[] ministryOrPositionIds;
+	private String[] prayingHouseReportCodes;
+	private String prayingHouseDistrict;
 	private Boolean regional;
 
-	public VolunteerSpecification(Long id, String name, Long[] cityIds, String cityName,
-			String ministryOrPositionDescription, Long[] ministryOrPositionIds, Boolean regional) {
+	public VolunteerSpecification(VolunteerRequestParamsDTO requestParams) {
 		super();
-		this.id = id;
-		this.name = name;
-		this.cityIds = cityIds;
-		this.cityName = cityName;
-		this.ministryOrPositionDescription = ministryOrPositionDescription;
-		this.ministryOrPositionIds = ministryOrPositionIds;
-		this.regional = regional;
+		this.id = requestParams.getId();
+		this.name = requestParams.getName();
+		this.cityIds = requestParams.getCityIds();
+		this.cityName = requestParams.getCityName();
+		this.ministryOrPositionDescription = requestParams.getMinistryOrPositionDescription();
+		this.ministryOrPositionIds = requestParams.getMinistryOrPositionIds();
+		this.prayingHouseReportCodes = requestParams.getPrayingHouseReportCodes();
+		this.prayingHouseDistrict = requestParams.getPrayingHouseDistrict();
+		this.regional = null;
 	}
 
 	@Override
 	public Predicate toPredicate(Root<Volunteer> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
 		List<Predicate> predicates = new ArrayList<>();
-		// where(criteriaBuilder.equal(root.get("id"), this.id));
-		
 		
 		query.distinct(false);
 		if (this.id != null) {
@@ -62,8 +64,15 @@ public class VolunteerSpecification implements Specification<Volunteer> {
 		if (this.ministryOrPositionIds != null && this.ministryOrPositionIds.length > 0) {
 			predicates.add(root.join("ministryOrPosition", JoinType.INNER).get("id").in((Object[]) this.ministryOrPositionIds));
 		}
+		if (this.prayingHouseReportCodes != null && this.prayingHouseReportCodes.length > 0) {
+			predicates.add(root.join("prayingHouse", JoinType.INNER).get("reportCode").in((Object[]) this.prayingHouseReportCodes));
+		}
 		if (this.regional != null) {
 			predicates.add(criteriaBuilder.equal(root.join("city", JoinType.INNER).get("regional"), this.regional));
+		}
+		if (this.prayingHouseDistrict != null) {
+			predicates.add(criteriaBuilder.like(root.join("prayingHouse", JoinType.INNER).get("district"),
+					"%" + this.prayingHouseDistrict + "%"));
 		}
 		
 		return criteriaBuilder.and(predicates.toArray(new Predicate[predicates.size()]));

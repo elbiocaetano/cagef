@@ -20,9 +20,20 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 @Entity
 @Table(name = "users")
 @DynamicUpdate
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode
 public class User implements Serializable, UserDetails {
 
 	private static final long serialVersionUID = -4118435083584469602L;
@@ -51,10 +62,7 @@ public class User implements Serializable, UserDetails {
     private Date updatedAt;
 	@Column(name = "created_at", updatable = false)
     private Date createdAt;
-	
-	public User() {
-		super();
-	}
+
 	
 	public User(String email) {
 		this.email = email;
@@ -77,78 +85,11 @@ public class User implements Serializable, UserDetails {
 		this.role = role;
 	}
 	
-	public User(Long id, String name, City city, String email, String password, String role, String rememberToken,
-			Date updatedAt, Date createdAt) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.city = city;
-		this.email = email;
-		this.password = password;
-		this.role = role;
-		this.rememberToken = rememberToken;
-		this.updatedAt = updatedAt;
-		this.createdAt = createdAt;
-	}
-	
-	public Long getId() {
-		return id;
-	}
-	public void setId(Long id) {
-		this.id = id;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public City getCity() {
-		return city;
-	}
-	public void setCity(City city) {
-		this.city = city;
-	}
-	public String getEmail() {
-		return email;
-	}
-	public void setEmail(String email) {
-		this.email = email;
-	}
-	public String getPassword() {
-		return password;
-	}
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	public String getRole() {
-		return role;
-	}
-	public void setRole(String role) {
-		this.role = role;
-	}
-	public String getRememberToken() {
-		return rememberToken;
-	}
-	public void setRememberToken(String rememberToken) {
-		this.rememberToken = rememberToken;
-	}
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
-	}
-	public Date getCreatedAt() {
-		return createdAt;
-	}
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
 	@Override
 	public Collection<SimpleGrantedAuthority> getAuthorities() {
 		return Arrays.asList(new SimpleGrantedAuthority(this.getRole()));
 	}
+	
 	@Override
 	public String getUsername() {
 		return this.getEmail();

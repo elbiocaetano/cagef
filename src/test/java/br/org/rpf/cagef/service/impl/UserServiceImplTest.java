@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,9 +20,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -29,22 +30,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import br.org.rpf.cagef.dto.http.request.city.UserRequestParamsDTO;
 import br.org.rpf.cagef.dto.user.UserDTO;
 import br.org.rpf.cagef.entity.User;
 import br.org.rpf.cagef.repository.CityRepository;
 import br.org.rpf.cagef.repository.UserRepository;
-import br.org.rpf.cagef.service.UserService;
 
 @RunWith(SpringRunner.class)
+@SpringBootTest
 public class UserServiceImplTest {
-
-	@TestConfiguration
-	static class UserServiceImplTestConfiguration {
-		@Bean(name = "userService")
-		public UserService userService() {
-			return new UserServiceImpl();
-		}
-	}
 
 	@Rule
 	public ExpectedException expectedEx = ExpectedException.none();
@@ -64,13 +58,13 @@ public class UserServiceImplTest {
 
 	@Before
 	public void setup() {
-		Mockito.when(cityRepository.findById(any())).thenReturn(Optional.of(CityServiceImplTest.generateCity()));
+		when(cityRepository.findById(any())).thenReturn(Optional.of(CityServiceImplTest.generateCity()));
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void loadByUsernameSuccessTest() {
-		Mockito.when(userRepository.findOne(any(Example.class))).thenReturn(Optional.of(generateUserNotAdmin()));
+		when(userRepository.findOne(any(Example.class))).thenReturn(Optional.of(generateUserNotAdmin()));
 
 		User user = this.userService.loadUserByUsername("mail@mail.com");
 
@@ -89,7 +83,7 @@ public class UserServiceImplTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void loadByUsernameErrorTest() {
-		Mockito.when(userRepository.findOne(any(Example.class)))
+		when(userRepository.findOne(any(Example.class)))
 				.thenThrow(new DataIntegrityViolationException("DataIntegrityViolationException"));
 
 		expectedEx.expect(DataIntegrityViolationException.class);
@@ -101,7 +95,7 @@ public class UserServiceImplTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void loadByUsernameNotFoundTest() {
-		Mockito.when(userRepository.findOne(any(Example.class))).thenReturn(Optional.ofNullable(null));
+		when(userRepository.findOne(any(Example.class))).thenReturn(Optional.ofNullable(null));
 
 		expectedEx.expect(ObjectNotFoundException.class);
 
@@ -111,21 +105,21 @@ public class UserServiceImplTest {
 	@SuppressWarnings("unchecked")
 	@Test
 	public void findAllErrorTest() {
-		Mockito.when(userRepository.findAll(any(Example.class), any(Pageable.class)))
+		when(userRepository.findAll(any(Example.class), any(Pageable.class)))
 				.thenThrow(new DataIntegrityViolationException("DataIntegrityViolationException"));
 
 		expectedEx.expect(DataIntegrityViolationException.class);
 		expectedEx.expectMessage("DataIntegrityViolationException");
 
-		this.userService.findAll(null, null, null, null, null, 0, 24, "id", "ASC");
+		this.userService.findAll(UserRequestParamsDTO.builder().offset(0).limit(25).orderBy("id").direction("ASC").build());
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void findAllSuccessTest() {
-		Mockito.when(userRepository.findAll(any(Example.class), any(Pageable.class)))
+		when(userRepository.findAll(any(Example.class), any(Pageable.class)))
 				.thenReturn(new PageImpl<User>(getUsersList()));
-		Page<User> users = this.userService.findAll(null, null, null, null, null, 0, 24, "id", "ASC");
+		Page<User> users = this.userService.findAll(UserRequestParamsDTO.builder().offset(0).limit(25).orderBy("id").direction("ASC").build());
 		List<User> usersList = users.getContent();
 		assertEquals(4, usersList.size());
 		assertEquals(1l, usersList.get(0).getId().longValue());
@@ -167,18 +161,20 @@ public class UserServiceImplTest {
 		assertEquals("Teste", usersList.get(3).getCity().getName());
 		assertEquals("SP", usersList.get(3).getCity().getState());
 		assertTrue(usersList.get(3).getCity().getRegional());
+		
+		verify(userRepository).findAll(any(Example.class), any(Pageable.class));
 	}
 
 	@Test(expected = ObjectNotFoundException.class)
 	public void findByIdNotFoundTest() {
-		Mockito.when(userRepository.findById(1l)).thenReturn(Optional.ofNullable(null));
+		when(userRepository.findById(1l)).thenReturn(Optional.ofNullable(null));
 
 		this.userService.byId(1l);
 	}
 
-	@Test()
+	@Test
 	public void findByIdSuccessTest() {
-		Mockito.when(userRepository.findById(1l)).thenReturn(Optional.of(generateUserNotAdmin()));
+		when(userRepository.findById(1l)).thenReturn(Optional.of(generateUserNotAdmin()));
 
 		User user = this.userService.byId(1l);
 		assertEquals(1l, user.getId().longValue());
@@ -190,18 +186,20 @@ public class UserServiceImplTest {
 		assertEquals("Teste", user.getCity().getName());
 		assertEquals("SP", user.getCity().getState());
 		assertTrue(user.getCity().getRegional());
+		
+		verify(userRepository).findById(1l);
 	}
 
 	@Test(expected = Exception.class)
 	public void saveErrorTest() {
-		Mockito.when(userRepository.save(any())).thenThrow(new Exception("Error"));
+		when(userRepository.save(any())).thenThrow(new Exception("Error"));
 
 		this.userService.save(generateUserDto());
 	}
 
-	@Test()
+	@Test
 	public void saveSuccessTest() {
-		Mockito.when(userRepository.save(any())).thenReturn(generateUserNotAdmin());
+		when(userRepository.save(any(User.class))).thenReturn(generateUserNotAdmin());
 
 		User user = this.userService.save(generateUserDto());
 		assertEquals(1l, user.getId().longValue());
@@ -213,16 +211,18 @@ public class UserServiceImplTest {
 		assertEquals("Teste", user.getCity().getName());
 		assertEquals("SP", user.getCity().getState());
 		assertTrue(user.getCity().getRegional());
+		
+		verify(userRepository).save(any(User.class));
 	}
 
 	@Test(expected = Exception.class)
 	public void updateErrorTest() {
-		Mockito.when(userRepository.save(any())).thenThrow(new Exception("Error"));
+		when(userRepository.save(any())).thenThrow(new Exception("Error"));
 
 		this.userService.save(generateUserDto());
 	}
 
-	@Test()
+	@Test
 	public void updateSuccessEmptyPasswordTest() {
 		Mockito.doNothing().when(userRepository).updateUser(eq(1l), eq("Teste"), any(), eq("ROLE_USUARIO"));
 
@@ -236,12 +236,14 @@ public class UserServiceImplTest {
 		assertEquals("Teste", user.getCity().getName());
 		assertEquals("SP", user.getCity().getState());
 		assertTrue(user.getCity().getRegional());
+		
+		verify(userRepository).updateUser(eq(1l), eq("Teste"), any(), eq("ROLE_USUARIO"));
 	}
 
-	@Test()
+	@Test
 	public void updateSuccessTest() {
-		Mockito.when(passwordEncoder.encode(any())).thenReturn("123");
-		Mockito.when(userRepository.save(any())).thenReturn(generateUserNotAdmin());
+		when(passwordEncoder.encode(any())).thenReturn("123");
+		when(userRepository.save(any())).thenReturn(generateUserNotAdmin());
 
 		User user = this.userService.update(1l, generateUserDto());
 		assertEquals(1l, user.getId().longValue());
@@ -253,13 +255,16 @@ public class UserServiceImplTest {
 		assertEquals("Teste", user.getCity().getName());
 		assertEquals("SP", user.getCity().getState());
 		assertTrue(user.getCity().getRegional());
+		
+		verify(passwordEncoder).encode(any());
+		verify(userRepository).save(any());
 	}
 
 	@Test(expected = ObjectNotFoundException.class)
 	public void updateCityNotFoundTest() {
-		Mockito.when(cityRepository.findById(any())).thenReturn(Optional.ofNullable(null));
-		Mockito.when(passwordEncoder.encode(any())).thenReturn("123");
-		Mockito.when(userRepository.save(any())).thenReturn(generateUserNotAdmin());
+		when(cityRepository.findById(any())).thenReturn(Optional.ofNullable(null));
+		when(passwordEncoder.encode(any())).thenReturn("123");
+		when(userRepository.save(any())).thenReturn(generateUserNotAdmin());
 
 		this.userService.update(1l, generateUserDto());
 	}
@@ -271,11 +276,13 @@ public class UserServiceImplTest {
 		this.userService.save(generateUserDto());
 	}
 
-	@Test()
+	@Test
 	public void removeSuccessTest() {
 		Mockito.doNothing().when(userRepository).deleteById(1l);
 
 		this.userService.remove(1l);
+		
+		verify(userRepository).deleteById(1l);
 	}
 
 	public static List<User> getUsersList() {
@@ -292,6 +299,14 @@ public class UserServiceImplTest {
 		return list;
 	}
 
+	public static User generateUserAdmin() {
+		return new User(1l, "Teste", CityServiceImplTest.generateCity(), "mail@mail.com", "123", "ROLE_ADMIN");
+	}
+	
+	public static User generateUserMusicAdmin() {
+		return new User(1l, "Teste", CityServiceImplTest.generateCity(), "mail@mail.com", "123", "ROLE_ADMIN_MUSICA");
+	}
+	
 	public static User generateUserNotAdmin() {
 		return new User(1l, "Teste", CityServiceImplTest.generateCity(), "mail@mail.com", "123", "ROLE_USUARIO");
 	}

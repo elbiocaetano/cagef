@@ -12,10 +12,20 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 @Entity
 @Table(name = "instruments")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 public class Instrument implements Serializable {
-
 	private static final long serialVersionUID = 1761086781430473882L;
 
 	@Id
@@ -31,39 +41,4 @@ public class Instrument implements Serializable {
 	@JoinColumn(name = "category_id")
 	@ManyToOne
 	private InstrumentCategory category;
-
-	public Instrument() {
-		super();
-	}
-
-	public Instrument(Long id, String description, InstrumentCategory category) {
-		super();
-		this.id = id;
-		this.description = description;
-		this.category = category;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public InstrumentCategory getCategory() {
-		return category;
-	}
-
-	public void setCategory(InstrumentCategory category) {
-		this.category = category;
-	}
 }

@@ -24,7 +24,7 @@ public interface MusicianRepository extends JpaRepository<Musician, Long>, JpaSp
 
 	@Transactional(propagation = Propagation.REQUIRED)
 	@Modifying(flushAutomatically = true, clearAutomatically = true)
-	@Query(value = "insert into musician values(:oficializationDate, :musicianId, :instrumentId)", nativeQuery = true)
+	@Query(value = "insert into musician (oficialization_date, id, instrument_id) values(:oficializationDate, :musicianId, :instrumentId)", nativeQuery = true)
 	public void createMusician(@Param("instrumentId") Long instrumentId, @Param("oficializationDate") LocalDate oficializationDate, @Param("musicianId") Long id);
 
 	@Transactional(propagation = Propagation.REQUIRED)

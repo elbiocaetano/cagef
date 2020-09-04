@@ -18,8 +18,19 @@ import org.hibernate.annotations.LazyCollectionOption;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
 @Entity
 @Table(name = "instruments_category")
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 public class InstrumentCategory implements Serializable {
 
 	private static final long serialVersionUID = -3077259241583757890L;
@@ -39,29 +50,9 @@ public class InstrumentCategory implements Serializable {
 	@OneToMany(cascade = CascadeType.MERGE, mappedBy = "category")
 	private List<Instrument> instruments;
 	
-	public InstrumentCategory() {
-		super();
-	}
-	
 	public InstrumentCategory(Long id, String description) {
 		super();
 		this.id = id;
-		this.description = description;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
 		this.description = description;
 	}
 }

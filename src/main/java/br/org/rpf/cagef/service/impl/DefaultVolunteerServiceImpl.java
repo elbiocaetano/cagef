@@ -1,6 +1,8 @@
 package br.org.rpf.cagef.service.impl;
 
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import br.org.rpf.cagef.entity.MinistryOrPosition;
 import br.org.rpf.cagef.entity.Musician;
 import br.org.rpf.cagef.entity.PrayingHouse;
 import br.org.rpf.cagef.entity.Volunteer;
+import br.org.rpf.cagef.entity.enums.MaritalStatusEnum;
 import br.org.rpf.cagef.repository.CityRepository;
 import br.org.rpf.cagef.repository.InstrumentRepository;
 import br.org.rpf.cagef.repository.MinistryOrPositionRepository;
@@ -47,15 +50,9 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 	
 
 	public Volunteer byId(Long id) {
-		Volunteer v = volunteerRepository.findById(id)
+		return volunteerRepository.findById(id)
 				.orElseThrow(() -> new org.hibernate.ObjectNotFoundException(id, Volunteer.class.getName()));
-		if (v instanceof Musician) {
-			return (Musician) v;
-		}
-		return v;
 	}
-
-	public abstract Volunteer save(BaseVolunteerDTO volunteerDTO);
 
 	@Transactional
 	public Volunteer update(Long id, BaseVolunteerDTO baseDTO) {
@@ -67,23 +64,23 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 			this.musicianRepository.removeRelationship(v.getId());
 		}
 		if (baseDTO instanceof VolunteerDTO) {
-			this.musicianRepository.findById(v.getId()).ifPresentOrElse(m -> {
-				this.musicianRepository.save(fromDTO((VolunteerDTO) baseDTO, m));
-			}, () -> {
+			this.musicianRepository.findById(v.getId()).ifPresentOrElse(m -> 
+				this.musicianRepository.save(fromDTO((VolunteerDTO) baseDTO, m))
+			, () -> {
 				if(hasMusicMinistery(baseDTO)) {
 					this.musicianRepository.createMusician(null, null, v.getId());
 					this.musicianRepository.save(fromDTO((VolunteerDTO) baseDTO, new Musician()));
 				} else {
-					this.save((VolunteerDTO) baseDTO);
+					this.save(baseDTO);
 				}
 			});
 		} else {
-			this.musicianRepository.findById(v.getId()).ifPresentOrElse(m -> {
-				this.save((MusicianDTO) baseDTO);
-			}, () -> {
+			this.musicianRepository.findById(v.getId()).ifPresentOrElse(m ->
+				this.save(baseDTO)
+			, () -> {
 				this.musicianRepository.createMusician(((MusicianDTO) baseDTO).getInstrument().getId(),
 						((MusicianDTO) baseDTO).getOficializationDate(), v.getId());
-				this.save((MusicianDTO) baseDTO);
+				this.save(baseDTO);
 			});
 		}
 
@@ -93,7 +90,7 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 	protected Volunteer fromDTO(VolunteerDTO volunteerDTO) {
 		PrayingHouse prayingHouse = null;
 		City naturalness = null;
-		City cidade = cityRepository.findById(volunteerDTO.getCity().getId()).orElseThrow(
+		City city = cityRepository.findById(volunteerDTO.getCity().getId()).orElseThrow(
 				() -> new org.hibernate.ObjectNotFoundException(volunteerDTO.getCity().getId(), City.class.getName()));
 
 		if (!ObjectUtils.isEmpty(volunteerDTO.getNaturalness())) {
@@ -110,13 +107,28 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 		List<MinistryOrPosition> ministryOrPositions = this.ministryOrPositionRepository
 				.findAllById(volunteerDTO.getMinistryOrPosition().getIds());
 
-		return new Volunteer(volunteerDTO, cidade, naturalness, prayingHouse, ministryOrPositions);
+		return fromDTO(volunteerDTO, prayingHouse, naturalness, city, ministryOrPositions);
 	}
 
-	public Musician fromDTO(VolunteerDTO volunteerDTO, Musician m) {
+	protected Volunteer fromDTO(VolunteerDTO volunteerDTO, PrayingHouse prayingHouse, City naturalness, City city,
+			List<MinistryOrPosition> ministryOrPositions) {
+		return Volunteer.builder().id(volunteerDTO.getId()).name(volunteerDTO.getName())
+				.address(volunteerDTO.getAddress()).district(volunteerDTO.getDistrict()).city(city)
+				.zipCode(volunteerDTO.getZipCode()).phoneNumber(volunteerDTO.getPhoneNumber())
+				.celNumber(volunteerDTO.getCelNumber()).email(volunteerDTO.getEmail())
+				.dateOfBirth(volunteerDTO.getDateOfBirth()).naturalness(naturalness)
+				.dateOfBaptism(volunteerDTO.getDateOfBaptism()).cpf(volunteerDTO.getCpf()).rg(volunteerDTO.getRg())
+				.maritalStatus(Optional.ofNullable(volunteerDTO.getMaritalStatus())
+						.map(MaritalStatusEnum::getDescription).orElse(null))
+				.ministryApresentationDate(volunteerDTO.getMinistryApresentationDate())
+				.timeInCity(volunteerDTO.getTimeInCity()).promise(volunteerDTO.getPromise()).updatedAt(LocalDate.now())
+				.createdAt(LocalDate.now()).prayingHouse(prayingHouse).ministryOrPosition(ministryOrPositions).build();
+	}
+
+	protected Musician fromDTO(VolunteerDTO volunteerDTO, Musician m) {
 		PrayingHouse prayingHouse = null;
 		City naturalness = null;
-		City cidade = cityRepository.findById(volunteerDTO.getCity().getId()).orElseThrow(
+		City city = cityRepository.findById(volunteerDTO.getCity().getId()).orElseThrow(
 				() -> new org.hibernate.ObjectNotFoundException(volunteerDTO.getCity().getId(), City.class.getName()));
 
 		if (!ObjectUtils.isEmpty(volunteerDTO.getNaturalness())) {
@@ -133,13 +145,25 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 		List<MinistryOrPosition> ministryOrPositions = this.ministryOrPositionRepository
 				.findAllById(volunteerDTO.getMinistryOrPosition().getIds());
 
-		return new Musician(volunteerDTO, cidade, naturalness, prayingHouse, ministryOrPositions, m.getInstrument(),
-				m.getOficializationDate(), m.getRehearsalDate(), m.getRjmExamDate(), m.getOficialCultExamDate(), m.getObservation());
+		return Musician.builder().id(volunteerDTO.getId()).name(volunteerDTO.getName())
+				.address(volunteerDTO.getAddress()).district(volunteerDTO.getDistrict()).city(city)
+				.zipCode(volunteerDTO.getZipCode()).phoneNumber(volunteerDTO.getPhoneNumber())
+				.celNumber(volunteerDTO.getCelNumber()).email(volunteerDTO.getEmail())
+				.dateOfBirth(volunteerDTO.getDateOfBirth()).naturalness(naturalness)
+				.dateOfBaptism(volunteerDTO.getDateOfBaptism()).cpf(volunteerDTO.getCpf()).rg(volunteerDTO.getRg())
+				.maritalStatus(Optional.ofNullable(volunteerDTO.getMaritalStatus())
+						.map(MaritalStatusEnum::getDescription).orElse(null))
+				.ministryApresentationDate(volunteerDTO.getMinistryApresentationDate())
+				.timeInCity(volunteerDTO.getTimeInCity()).promise(volunteerDTO.getPromise()).updatedAt(LocalDate.now())
+				.createdAt(LocalDate.now()).prayingHouse(prayingHouse).ministryOrPosition(ministryOrPositions)
+				.instrument(m.getInstrument()).oficializationDate(m.getOficializationDate())
+				.rehearsalDate(m.getRehearsalDate()).rjmExamDate(m.getRjmExamDate())
+				.oficialCultExamDate(m.getOficialCultExamDate()).observation(m.getObservation()).build();
 	}
 
 	protected Musician fromDTO(MusicianDTO musicianDTO) {
 		PrayingHouse prayingHouse = null;
-		City cidade = cityRepository.findById(musicianDTO.getCity().getId()).orElseThrow(
+		City city = cityRepository.findById(musicianDTO.getCity().getId()).orElseThrow(
 				() -> new org.hibernate.ObjectNotFoundException(musicianDTO.getCity().getId(), City.class.getName()));
 
 		Instrument instrument = instrumentRepository.findById(musicianDTO.getInstrument().getId())
@@ -154,12 +178,18 @@ public abstract class DefaultVolunteerServiceImpl implements DefaultVolunteerSer
 		List<MinistryOrPosition> ministryOrPositions = this.ministryOrPositionRepository
 				.findAllById(musicianDTO.getMinistryOrPosition().getIds());
 
-		return new Musician(musicianDTO, cidade, null, prayingHouse, ministryOrPositions, instrument,
-				musicianDTO.getOficializationDate(), musicianDTO.getRehearsalDate(), musicianDTO.getRjmExamDate(), musicianDTO.getOficialCultExamDate(), musicianDTO.getObservation());
+		return Musician.builder().id(musicianDTO.getId()).name(musicianDTO.getName()).city(city)
+				.phoneNumber(musicianDTO.getPhoneNumber()).celNumber(musicianDTO.getCelNumber())
+				.email(musicianDTO.getEmail()).dateOfBirth(musicianDTO.getDateOfBirth()).updatedAt(LocalDate.now())
+				.createdAt(LocalDate.now()).prayingHouse(prayingHouse).ministryOrPosition(ministryOrPositions)
+				.instrument(instrument).oficializationDate(musicianDTO.getOficializationDate())
+				.rehearsalDate(musicianDTO.getRehearsalDate()).rjmExamDate(musicianDTO.getRjmExamDate())
+				.oficialCultExamDate(musicianDTO.getOficialCultExamDate()).observation(musicianDTO.getObservation())
+				.build();
 	}
 	
 	protected boolean hasMusicMinistery(BaseVolunteerDTO baseDTO) {
-		return baseDTO.getMinistryOrPosition().getIds().stream().filter(m -> MUSIC_MINISTERIES.contains(m)).findAny().isPresent();
+		return baseDTO.getMinistryOrPosition().getIds().stream().anyMatch(MUSIC_MINISTERIES::contains);
 	}
 
 	@Override

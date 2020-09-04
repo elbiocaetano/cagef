@@ -2,6 +2,8 @@ package br.org.rpf.cagef.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +57,7 @@ public class MinistryOrPositionServiceImplTest {
 
 	@Test
 	public void findAllErrorTest() {
-		Mockito.when(ministryOrPositionRepository.findAll(any(MinistryOrPositionSpecification.class), any(Pageable.class)))
+		when(ministryOrPositionRepository.findAll(any(MinistryOrPositionSpecification.class), any(Pageable.class)))
 				.thenThrow(new DataIntegrityViolationException("DataIntegrityViolationException"));
 
 		expectedEx.expect(DataIntegrityViolationException.class);
@@ -66,7 +68,7 @@ public class MinistryOrPositionServiceImplTest {
 
 	@Test
 	public void findAllSuccessTest() {
-		Mockito.when(ministryOrPositionRepository.findAll(any(MinistryOrPositionSpecification.class), any(Pageable.class)))
+		when(ministryOrPositionRepository.findAll(any(MinistryOrPositionSpecification.class), any(Pageable.class)))
 				.thenReturn(new PageImpl<MinistryOrPosition>(getMinisteriesOrPositionsList()));
 		Page<MinistryOrPosition> ministeriesOrPositions = this.ministryOrPositionService.findAll(null, null, null, 0, 24,
 				"id", "ASC");
@@ -83,55 +85,63 @@ public class MinistryOrPositionServiceImplTest {
 
 		assertEquals(4l, ministeriesOrPositionsList.get(3).getId().longValue());
 		assertEquals("Encarregado Regional", ministeriesOrPositionsList.get(3).getDescription());
+		
+		verify(ministryOrPositionRepository).findAll(any(MinistryOrPositionSpecification.class), any(Pageable.class));
 	}
 
 	@Test(expected = ObjectNotFoundException.class)
 	public void findByIdNotFoundTest() {
-		Mockito.when(ministryOrPositionRepository.findById(1l)).thenReturn(Optional.ofNullable(null));
+		when(ministryOrPositionRepository.findById(1l)).thenReturn(Optional.ofNullable(null));
 
 		this.ministryOrPositionService.byId(1l);
 	}
 
-	@Test()
+	@Test
 	public void findByIdSuccessTest() {
-		Mockito.when(ministryOrPositionRepository.findById(1l)).thenReturn(Optional.of(generateMinistryOrPosition()));
+		when(ministryOrPositionRepository.findById(1l)).thenReturn(Optional.of(generateMinistryOrPosition()));
 
 		MinistryOrPosition ministryOrPosition = this.ministryOrPositionService.byId(1l);
 		assertEquals(1l, ministryOrPosition.getId().longValue());
 		assertEquals("Teste", ministryOrPosition.getDescription());
+		
+		verify(ministryOrPositionRepository).findById(1l);
 	}
 
 	@Test(expected = Exception.class)
 	public void saveErrorTest() {
-		Mockito.when(ministryOrPositionRepository.save(any())).thenThrow(new Exception("Error"));
+		when(ministryOrPositionRepository.save(any())).thenThrow(new Exception("Error"));
 
 		this.ministryOrPositionService.save(generateMinistryOrPositionDTO());
 	}
 
-	@Test()
+	@Test
 	public void saveSuccessTest() {
-		Mockito.when(ministryOrPositionRepository.save(any())).thenReturn(generateMinistryOrPosition());
+		when(ministryOrPositionRepository.save(any(MinistryOrPosition.class))).thenReturn(generateMinistryOrPosition());
 
 		MinistryOrPosition ministryOrPosition = this.ministryOrPositionService.save(generateMinistryOrPositionDTO());
 		assertEquals(1l, ministryOrPosition.getId().longValue());
 		assertEquals("Teste", ministryOrPosition.getDescription());
+		
+		verify(ministryOrPositionRepository).save(any(MinistryOrPosition.class));
 	}
 
 	@Test(expected = Exception.class)
 	public void updateErrorTest() {
-		Mockito.when(ministryOrPositionRepository.save(any())).thenThrow(new Exception("Error"));
+		when(ministryOrPositionRepository.save(any())).thenThrow(new Exception("Error"));
 
 		this.ministryOrPositionService.save(generateMinistryOrPositionDTO());
 	}
 
-	@Test()
+	@Test
 	public void updateSuccessTest() {
-		Mockito.when(ministryOrPositionRepository.save(any())).thenReturn(generateMinistryOrPosition());
+		when(ministryOrPositionRepository.save(any(MinistryOrPosition.class))).thenReturn(generateMinistryOrPosition());
 
 		MinistryOrPosition ministryOrPosition = this.ministryOrPositionService.update(1l,
 				generateMinistryOrPositionDTO());
 		assertEquals(1l, ministryOrPosition.getId().longValue());
 		assertEquals("Teste", ministryOrPosition.getDescription());
+		
+		verify(ministryOrPositionRepository).save(any(MinistryOrPosition.class));
 	}
 
 	@Test(expected = Exception.class)
@@ -141,15 +151,21 @@ public class MinistryOrPositionServiceImplTest {
 		this.ministryOrPositionService.save(generateMinistryOrPositionDTO());
 	}
 
-	@Test()
+	@Test
 	public void removeSuccessTest() {
 		Mockito.doNothing().when(ministryOrPositionRepository).deleteById(1l);
 
 		this.ministryOrPositionService.remove(1l);
+		
+		verify(ministryOrPositionRepository).deleteById(1l);
 	}
 
 	public static MinistryOrPosition generateMinistryOrPosition() {
 		return new MinistryOrPosition(1l, "Teste");
+	}
+	
+	public static MinistryOrPosition generateMinistryOrPositionMusician() {
+		return new MinistryOrPosition(32l, "Teste");
 	}
 
 	public static MinistryOrPositionDTO generateMinistryOrPositionDTO() {

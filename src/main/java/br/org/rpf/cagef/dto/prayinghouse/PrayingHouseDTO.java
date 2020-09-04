@@ -4,57 +4,30 @@ import java.io.Serializable;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.Length;
+import javax.validation.constraints.Size;
 
 import br.org.rpf.cagef.dto.city.CityInnerDTO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EqualsAndHashCode
 public class PrayingHouseDTO implements Serializable {
 	private static final long serialVersionUID = 751445228719197189L;
 
 	@NotNull
-	@Length(min = 3, max = 45)
+	@Size(min = 3, max = 45)
 	private String reportCode;
 	@NotNull
-	@Length(min = 3, max = 45)
+	@Size(min = 3, max = 45)
 	private String district;
 	@Valid
 	@NotNull
 	private CityInnerDTO city;
-	
-	public PrayingHouseDTO() {
-		super();
-	}
-
-	public PrayingHouseDTO(@NotNull @Length(min = 3, max = 45) String reportCode,
-			@NotNull @Length(min = 3, max = 45) String district, @Valid @NotNull CityInnerDTO city) {
-		this();
-		this.reportCode = reportCode;
-		this.district = district;
-		this.city = city;
-	}
-
-	public String getReportCode() {
-		return reportCode;
-	}
-
-	public void setReportCode(String reportCode) {
-		this.reportCode = reportCode;
-	}
-
-	public String getDistrict() {
-		return district;
-	}
-
-	public void setDistrict(String district) {
-		this.district = district;
-	}
-
-	public CityInnerDTO getCity() {
-		return city;
-	}
-
-	public void setCity(CityInnerDTO city) {
-		this.city = city;
-	}
 }
