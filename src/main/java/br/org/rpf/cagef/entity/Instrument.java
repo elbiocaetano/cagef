@@ -39,6 +39,6 @@ public class Instrument implements Serializable {
 	private String description;
 
 	@JoinColumn(name = "category_id")
-	@ManyToOne
+	@ManyToOne(optional = false)
 	private InstrumentCategory category;
 }

@@ -61,7 +61,7 @@ public class Volunteer implements Serializable {
 	private String address;
 	@Column(name = "bairro")
 	private String district;
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "id_cidade")
 	@Fetch(FetchMode.JOIN)
 	private City city;
@@ -100,7 +100,7 @@ public class Volunteer implements Serializable {
 	@Column(name = "created_at")
 	private LocalDate createdAt;
 	@JoinColumn(name = "cod_relatorio")
-	@ManyToOne(cascade = CascadeType.MERGE)
+	@ManyToOne(cascade = CascadeType.MERGE, optional = false)
 	private PrayingHouse prayingHouse;
 	@ManyToMany(fetch = FetchType.LAZY)
 	@JoinTable(name = "voluntarios_ministeriocargos", joinColumns = @JoinColumn(name = "id_voluntario", referencedColumnName = "id"), inverseJoinColumns = @JoinColumn(name = "id_ministeriocargos", referencedColumnName = "id_ministeriocargo"))
