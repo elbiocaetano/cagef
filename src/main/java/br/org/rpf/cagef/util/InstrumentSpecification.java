@@ -44,7 +44,7 @@ public class InstrumentSpecification implements Specification<Instrument> {
 			predicates.add(criteriaBuilder.like(root.get("description"), "%" + this.description + "%"));
 		}
 		if (this.categoryIds != null && this.categoryIds.length > 0) {
-			predicates.add(criteriaBuilder.and(root.join("category", JoinType.INNER).get("id").in((Object[]) this.categoryIds)));
+			predicates.add(criteriaBuilder.and(root.get("category").get("id").in((Object[]) this.categoryIds)));
 		}
 		if (this.categoryName != null) {
 			predicates.add(criteriaBuilder.like(root.join("category", JoinType.INNER).get("description"), "%" + this.categoryName + "%"));

@@ -31,7 +31,7 @@ public class Musician extends Volunteer implements Serializable {
 	private static final long serialVersionUID = 9200081341764819062L;
 
 	@JoinColumn(name = "instrument_id", nullable = true)
-	@ManyToOne(cascade = CascadeType.MERGE)
+	@ManyToOne(cascade = CascadeType.MERGE, optional = false)
 	private Instrument instrument;
 	@Column(name = "oficialization_date")
 	private LocalDate oficializationDate;

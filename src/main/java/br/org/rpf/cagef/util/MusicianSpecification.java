@@ -62,7 +62,7 @@ public class MusicianSpecification implements Specification<Musician> {
 		}
 		if (this.cityIds != null && this.cityIds.length > 0) {
 			predicates
-					.add(criteriaBuilder.and(root.join("city", JoinType.INNER).get("id").in((Object[]) this.cityIds)));
+					.add(criteriaBuilder.and(root.get("city").get("id").in((Object[]) this.cityIds)));
 		}
 		if (this.cityName != null) {
 			predicates.add(
@@ -81,7 +81,7 @@ public class MusicianSpecification implements Specification<Musician> {
 					"%" + this.instrumentDescription + "%"));
 		}
 		if (!ObjectUtils.isEmpty(instrumentIds)) {
-			predicates.add(root.join("instrument", JoinType.INNER).get("id").in((Object[]) this.instrumentIds));
+			predicates.add(root.get("instrument").get("id").in((Object[]) this.instrumentIds));
 		}
 		if(prayingHouseDistrict != null) {
 			predicates.add(criteriaBuilder.like(root.join("prayingHouse", JoinType.INNER).get("district"),
