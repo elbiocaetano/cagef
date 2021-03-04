@@ -53,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		
 		http.addFilter(new JWTAuthenticationFilter(authenticationManager(), jwtUtil));
 		http.addFilter(new JWTAuthorizationFilter(authenticationManager(), jwtUtil, userDetailsService));
-	    http.authorizeRequests().anyRequest().authenticated().and().httpBasic().and().cors().and().csrf().disable();
+		http.authorizeRequests().antMatchers("/login").permitAll().anyRequest().authenticated().and().httpBasic().and().cors().and().csrf().disable();
 		http.exceptionHandling().authenticationEntryPoint(new AuthenticationEntryPoint() {
 			
 			@Override

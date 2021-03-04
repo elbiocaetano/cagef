@@ -3,6 +3,7 @@ package br.org.rpf.cagef.controller;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,9 +23,12 @@ public class AuthController {
 	@PostMapping(value = "/refresh_token")
 	public ResponseEntity<Void> refreshToken(HttpServletResponse response) {
 		User user = UserService.authenticated();
-		String token = jwtUtil.generateToken(user);
-		response.addHeader("Authorization", "Bearer " + token);
-		response.addHeader("access-control-expose-headers", "Authorization");
-		return ResponseEntity.noContent().build();
+		if (user != null) {
+			String token = jwtUtil.generateToken(user);
+			response.addHeader("Authorization", "Bearer " + token);
+			response.addHeader("access-control-expose-headers", "Authorization");
+			return ResponseEntity.noContent().build();
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 }
